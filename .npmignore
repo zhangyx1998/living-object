@@ -1,0 +1,11 @@
+.github
+.vscode
+
+src
+examples
+tests
+dist/*.map
+
+README.md
+tsconfig.json
+rollup.config.ts

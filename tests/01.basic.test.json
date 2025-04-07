@@ -1,0 +1,227 @@
+[
+  {
+    "_id": "67f34c49c5b27e9715c2eb19",
+    "index": 0,
+    "guid": "299d53b1-587e-4872-8cc2-2bcc917425d6",
+    "isActive": false,
+    "balance": "$3,891.61",
+    "picture": "http://placehold.it/32x32",
+    "age": 32,
+    "eyeColor": "blue",
+    "name": "Best Kemp",
+    "gender": "male",
+    "company": "SYNKGEN",
+    "email": "bestkemp@synkgen.com",
+    "phone": "+1 (919) 485-2424",
+    "address": "444 Jaffray Street, Dargan, Louisiana, 6300",
+    "about": "Ut consequat eu quis reprehenderit ut proident commodo.\r\n",
+    "registered": "2014-08-10T04:03:23 +04:00",
+    "latitude": 3.092524,
+    "longitude": -60.249202,
+    "tags": [
+      "quis",
+      "do",
+      "eu",
+      "voluptate",
+      "reprehenderit",
+      "eu",
+      "commodo"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Kelley Mitchell"
+      },
+      {
+        "id": 1,
+        "name": "Jodi Kirby"
+      },
+      {
+        "id": 2,
+        "name": "Woodward Long"
+      }
+    ],
+    "greeting": "Hello, Best Kemp! You have 7 unread messages.",
+    "favoriteFruit": "apple"
+  },
+  {
+    "_id": "67f34c49e9beeca2161f58a2",
+    "index": 1,
+    "guid": "6c1ec9ed-4fbd-4115-81aa-97351987a9ae",
+    "isActive": false,
+    "balance": "$2,836.17",
+    "picture": "http://placehold.it/32x32",
+    "age": 38,
+    "eyeColor": "blue",
+    "name": "Anita Vaughan",
+    "gender": "female",
+    "company": "APEXIA",
+    "email": "anitavaughan@apexia.com",
+    "phone": "+1 (864) 466-3212",
+    "address": "386 Ludlam Place, Coyote, Illinois, 3214",
+    "about": "Anim id commodo voluptate duis incididunt excepteur est adipisicing fugiat excepteur velit. Nostrud nostrud sit minim occaecat reprehenderit ex exercitation. Labore aute do nostrud adipisicing sint qui quis. Labore aute velit culpa mollit fugiat enim quis ea sint minim culpa. Officia quis enim officia qui esse voluptate officia dolor elit eu. Nulla ea in dolore ipsum eu adipisicing qui ut sint sit. Mollit deserunt ut ullamco id nostrud occaecat.\r\n",
+    "registered": "2017-06-11T04:28:02 +04:00",
+    "latitude": -5.597781,
+    "longitude": 65.355374,
+    "tags": [
+      "aute",
+      "fugiat",
+      "ad",
+      "do",
+      "voluptate",
+      "eiusmod",
+      "laborum"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Marcie Guthrie"
+      },
+      {
+        "id": 1,
+        "name": "Mueller Mccarthy"
+      },
+      {
+        "id": 2,
+        "name": "Albert Hooper"
+      }
+    ],
+    "greeting": "Hello, Anita Vaughan! You have 3 unread messages.",
+    "favoriteFruit": "strawberry"
+  },
+  {
+    "_id": "67f34c494d27e8831b104539",
+    "index": 2,
+    "guid": "47bfe0ab-2d0d-43cf-b375-63a66bee98e5",
+    "isActive": false,
+    "balance": "$2,097.88",
+    "picture": "http://placehold.it/32x32",
+    "age": 21,
+    "eyeColor": "blue",
+    "name": "Meredith Gardner",
+    "gender": "female",
+    "company": "NETILITY",
+    "email": "meredithgardner@netility.com",
+    "phone": "+1 (901) 576-2458",
+    "address": "531 Oriental Boulevard, Lloyd, Virgin Islands, 1705",
+    "about": "Sint deserunt adipisicing minim Lorem. Anim in duis anim id aute reprehenderit. Voluptate dolor ipsum in eu cupidatat. Amet incididunt ad ullamco dolor in amet do id excepteur mollit mollit pariatur. Ex ex laboris fugiat duis ut in in officia enim irure.\r\n",
+    "registered": "2015-05-04T08:24:31 +04:00",
+    "latitude": 28.91926,
+    "longitude": 168.344032,
+    "tags": [
+      "dolor",
+      "in",
+      "ad",
+      "commodo",
+      "sint",
+      "sunt",
+      "sint"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Sharlene Tyler"
+      },
+      {
+        "id": 1,
+        "name": "Estrada Frazier"
+      },
+      {
+        "id": 2,
+        "name": "Mills Hudson"
+      }
+    ],
+    "greeting": "Hello, Meredith Gardner! You have 7 unread messages.",
+    "favoriteFruit": "banana"
+  },
+  {
+    "_id": "67f34c494c6e1fcd40495bf9",
+    "index": 3,
+    "guid": "fa64f468-6c98-4df1-b02c-f3baf0a2d3a5",
+    "isActive": true,
+    "balance": "$1,305.20",
+    "picture": "http://placehold.it/32x32",
+    "age": 39,
+    "eyeColor": "green",
+    "name": "Belinda Nieves",
+    "gender": "female",
+    "company": "TYPHONICA",
+    "email": "belindanieves@typhonica.com",
+    "phone": "+1 (872) 438-2571",
+    "address": "948 Sunnyside Court, Cucumber, Nebraska, 7362",
+    "about": "Sint labore occaecat aliqua non proident laboris eiusmod proident adipisicing. Quis excepteur voluptate qui ex. Reprehenderit reprehenderit officia fugiat ullamco cillum pariatur. Quis aliquip sit occaecat aliquip elit sunt proident anim id aliqua nostrud. Nulla do est ut incididunt exercitation quis velit veniam enim nisi ad. Ut consectetur veniam consectetur in duis dolore eiusmod officia exercitation deserunt sit exercitation ut.\r\n",
+    "registered": "2021-01-15T07:54:46 +05:00",
+    "latitude": -23.365216,
+    "longitude": -138.934871,
+    "tags": [
+      "exercitation",
+      "ea",
+      "ut",
+      "consectetur",
+      "sint",
+      "qui",
+      "aliquip"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Emma Mayer"
+      },
+      {
+        "id": 1,
+        "name": "Beth Sheppard"
+      },
+      {
+        "id": 2,
+        "name": "Rodriguez Pearson"
+      }
+    ],
+    "greeting": "Hello, Belinda Nieves! You have 10 unread messages.",
+    "favoriteFruit": "apple"
+  },
+  {
+    "_id": "67f34c49323c0ac09af265f7",
+    "index": 4,
+    "guid": "294cf79f-3192-412f-9689-233c48ddfd24",
+    "isActive": false,
+    "balance": "$1,732.33",
+    "picture": "http://placehold.it/32x32",
+    "age": 20,
+    "eyeColor": "blue",
+    "name": "Howell Ramirez",
+    "gender": "male",
+    "company": "SONIQUE",
+    "email": "howellramirez@sonique.com",
+    "phone": "+1 (890) 461-3167",
+    "address": "999 Perry Place, Loma, Florida, 1583",
+    "about": "In ut dolor ex labore veniam enim dolore.",
+    "registered": "2019-02-15T08:04:23 +05:00",
+    "latitude": 9.209724,
+    "longitude": -97.874462,
+    "tags": [
+      "ut",
+      "occaecat",
+      "velit",
+      "duis",
+      "nulla",
+      "ex",
+      "exercitation"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Lauri Justice"
+      },
+      {
+        "id": 1,
+        "name": "Ayers Hess"
+      },
+      {
+        "id": 2,
+        "name": "Angelica Ford"
+      }
+    ],
+    "greeting": "Hello, Howell Ramirez! You have 1 unread messages.",
+    "favoriteFruit": "banana"
+  }
+]
