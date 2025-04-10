@@ -4,22 +4,23 @@ Living Object serializes JS Objects into executable JS code. It preserves circul
 
 Unlike other solutions that embeds custom protocols into JSON files, **_Living Object_ directly generates executable JavaScript code**. Therefore, it's result can be **directly imported as ES Module** or **evaluated in a wrapper function**, achieving **minimal performance overhead** on the consumer side.
 
-## Currently Supported
+## Supported Data Types
 
-- [x] Circular Reference & Strict Object Equality 🔥
-- [x] Pure Functions (preserving attributes) 🔥
-- [x] `undefined`, `null`
-- [x] Global Symbols
-- [x] Map
-- [x] Set
-- [x] Date
-- [x] RegExp
+- ✅ Circular Reference & Strict Object Equality 🔥
+- ✅ Pure Functions (preserving attributes) 🔥
+- ✅ Custom Object Interface (API) 🔥
+- ✅ `undefined`, `null`
+- ✅ Global Symbols
+- ✅ Map
+- ✅ Set
+- ✅ Date
+- ✅ RegExp
+- ✅ Error
 
-## Additional Data Types (WIP)
+## Additional Data Types (Work in progress)
 
-- [ ] Error
-- [ ] Buffer
-- [ ] Buffer
+- ⏳ Buffer
+- ⏳ BufferView
 
 ## Usage
 
@@ -27,8 +28,8 @@ Unlike other solutions that embeds custom protocols into JSON files, **_Living O
 import { stringify, parse } from "living-object";
 
 // Create circular reference
-const circular = {}
-circular.loop = circular
+const circular = {};
+circular.loop = circular;
 
 const object = {
     // circular reference
@@ -39,7 +40,9 @@ const object = {
     },
     // function with attributes
     bar: Object.assign(
-        function () { return "Happy coding!" },
+        function () {
+            return "Happy coding!";
+        },
         { hello: "world" }
     ),
     // undefined and null
@@ -47,76 +50,70 @@ const object = {
     b: undefined,
     c: null,
     // Set and Map
-    s: new Set(['a', 'b', 'c']),
-    m: new Map([['foo', 'bar'], [circular, 'circular'], ['circular', circular]]),
+    s: new Set(["a", "b", "c"]),
+    m: new Map([
+        ["foo", "bar"],
+        [circular, "circular"],
+        ["circular", circular],
+    ]),
     // Date object
     time: new Date(),
     // RegExp
-    regex: /^hello-world$/gi
-}
+    regex: /^hello-world$/gi,
+};
 
-console.log(stringify())
+console.log(stringify());
 ```
 
 **Output** (`type = 'function'`)
 
->
 > ```js
 > "use strict";
-> const
-> i = new RegExp(/^hello-world$/gi),
-> h = new Date(1744017092158),
-> g = new Map,
-> f = new Set,
-> e = [undefined,null],
-> d = Object.assign(function () { return "Happy coding!" }, {
-> 	hello: "world"
-> }),
-> c = function foo() {
+> const a = { loop: 0 };
+> a.loop = a;
+> return {
+>     circular: a,
+>     foo: function foo() {
 >         return "bar";
 >     },
-> b = {};
-> g.set("foo", "bar").set(b, "circular").set("circular", b);
-> f.add("a").add("b").add("c");
-> b.loop = b;
-> return {
-> 	circular: b,
-> 	foo: c,
-> 	bar: d,
-> 	a: e,
-> 	b: undefined,
-> 	c: null,
-> 	s: f,
-> 	m: g,
-> 	time: h,
-> 	regex: i
+>     bar: Object.assign(
+>         function () {
+>             return "Happy coding!";
+>         },
+>         { hello: "world" }
+>     ),
+>     a: [undefined, null],
+>     b: undefined,
+>     c: null,
+>     s: new Set(["a", "b", "c"]),
+>     m: new Map([
+>         ["foo", "bar"],
+>         [a, "circular"],
+>         ["circular", a],
+>     ]),
+>     time: new Date(1744286161914),
+>     regex: new RegExp("^hello-world$"),
 > };
 > ```
 
 **Output** (`type = 'module'`)
 
->
 > ```diff
-> ...
+>   ...
 > - return {
 > + export default {
->   	circular: b,
->   	foo: c,
->   	bar: d,
->   	a: e,
->   	b: undefined,
->   	c: null,
->   	s: f,
->   	m: g,
->   	time: h,
->   	regex: i
+>     ... // unchanged lines omitted
 >   };
 > ```
 
-## Advanced: Custom Object Reviving Rules
+## Advanced: Custom Object API
 
-> Work in progress
+> Documentation Coming Soon
+>
+> Please refer to [builtins.ts](src/handles/builtins.ts) for examples.
 
 ## Advanced: Context Injection
 
-> Documentation WIP
+> Documentation Coming Soon
+>
+> Please refer to [context.test.js](tests/07.context.test.js) for examples.

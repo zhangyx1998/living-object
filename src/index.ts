@@ -1,197 +1,97 @@
 /* ---------------------------------------------------------
- * Copyright (c) 2023 Yuxuan Zhang, web-dev@z-yx.cc
+ * Copyright (c) 2025-present Yuxuan Zhang, web-dev@z-yx.cc
  * This source code is licensed under the MIT license.
  * You may find the full license in project root directory.
  * ------------------------------------------------------ */
-
+import { FormatOptions } from "./shared";
+import Graph from "./graph";
 import {
-    NameGenerator,
-    inline,
-    isImmediateValue,
-    crash,
-    serializeFunction,
-    serializeObjectKey,
-    isValidAttributeName,
-    inBrowser,
-} from "./util";
+    type TypeHandle,
+    type TypeHandles,
+    builtinTypeHandles,
+} from "./handles";
+import Code from "./code";
+import { crash, lookup, inBrowser, isValidVarName, Locals } from "./util";
+import closure from "./closure";
 
-type PropertyKey = string | number | symbol;
+export default class LivingObject {
+    private handles: TypeHandles = builtinTypeHandles;
 
-function keys(obj: object): PropertyKey[] {
-    const keys: PropertyKey[] = Object.keys(obj);
-    return keys.concat(Object.getOwnPropertySymbols(obj));
-}
+    constructor(private root: object) {}
 
-function values(obj: object): any[] {
-    if (obj instanceof Map) return [...obj.keys(), ...obj.values()];
-    if (obj instanceof Set) return [...obj.values()];
-    return keys(obj).map((k) => (obj as any)[k]);
-}
-
-function entries(obj: object): [PropertyKey, any][] {
-    return keys(obj).map((k) => [k, (obj as any)[k]]);
-}
-
-export default class CompileResult {
-    constructor(
-        private root: string,
-        public readonly decl: string[],
-        public readonly stmt: string[]
-    ) {}
-
-    toString() {
-        const code = ['"use strict"'];
-        if (this.decl.length > 0) code.push("const\n" + this.decl.join(",\n"));
-        code.push(...this.stmt);
-        return code.join(";\n");
+    public register(...handles: TypeHandle[]) {
+        this.handles = this.handles.extend(...handles);
+        return this;
     }
 
-    toModule() {
-        const statement = `export default ${this.root};`;
-        return [this.toString(), statement].join(";\n");
-    }
-
-    toFunctionBody() {
-        const statement = `return ${this.root};`;
-        return [this.toString(), statement].join(";\n");
-    }
-}
-
-export class LivingObject {
-    private keyGen = new NameGenerator();
-    private store = new Map<any, string>();
-    private rootKey: string;
-
-    constructor(private root: object) {
-        this.rootKey =
-            this.register(this.root) ??
-            inline(this.root) ??
-            crash(`Cannot deflate object ${this.root}`);
-    }
-
-    private register(
-        target: object,
-        preferredKey?: string
-    ): string | undefined {
-        if (isImmediateValue(target)) return;
-        if (this.store.has(target)) return this.store.get(target)!;
-        // Register new unique object
-        const key = preferredKey ?? this.keyGen.next();
-        this.store.set(target, key);
-        // Traverse the interior of new object
-        values(target).forEach((t) => this.register(t));
-        return key;
-    }
-
-    compile(): CompileResult {
-        const { store } = this;
-        let root = this.rootKey;
-
-        // Objects already declared in code context
-        const context = new Map<any, string>();
-
-        // Statements deferred after instantiation of given object
-        const pending = new Map<any, ((key: string) => string)[]>();
-
-        function getQueueOf(obj: any) {
-            if (!pending.has(obj)) {
-                pending.set(obj, []);
-            }
-            return pending.get(obj)!;
+    private reserved = new Set<string>();
+    public reserve(namespace: Iterable<string>) {
+        for (const name of namespace) {
+            if (isValidVarName(name)) this.reserved.add(name);
         }
+        return this;
+    }
 
-        function defer(obj: any, target: string, key: string | number) {
-            const accessor = isValidAttributeName(key)
-                ? `${target}.${key.toString()}`
-                : `${target}[${JSON.stringify(key)}]`;
-            const callback = (value: string) => `${accessor} = ${value}`;
-            getQueueOf(obj).push(callback);
+    compile(context?: object): Code {
+        const { root, handles, reserved } = this;
+        const locals = new Locals(context, reserved);
+        const code = new Code(...reserved, ...locals.keys());
+        // Build the dependency graph with initial optimization
+        const graph = new Graph(handles, root, ...locals.values());
+        // Reserve names for locals
+        for (const [name, { value, writable }] of locals.entries()) {
+            // Assign name
+            code.register(value, { name, type: writable ? "let" : "const" });
         }
-
-        function compile(obj: any, key: string): string {
-            if (obj instanceof Date) return `new Date(${obj.getTime()})`;
-            if (obj instanceof RegExp) return `new RegExp(${obj.toString()})`;
-            if (obj instanceof Function) {
-                const fn = serializeFunction(obj);
-                const extras = entries(obj);
-                if (extras.length > 0) {
-                    const extra = compile(Object.fromEntries(extras), key);
-                    return `Object.assign(${fn}, ${extra})`;
-                } else {
-                    return fn;
-                }
-            }
-            if (obj instanceof Map) {
-                function mapSet([k, v]: any[]) {
-                    return `.set(${
-                        inline(k, store) ??
-                        crash(`Map key ${k} cannot be resolved`)
-                    }, ${
-                        inline(v, store) ??
-                        crash(`Map val ${v} cannot be resolved`)
-                    })`;
-                }
-                if (obj.size > 0)
-                    getQueueOf(obj).push((key) =>
-                        [key, ...obj.entries().map(mapSet)].join("")
-                    );
-                return "new Map";
-            }
-            if (obj instanceof Set) {
-                function setAdd(v: any) {
-                    return `.add(${
-                        inline(v, store) ??
-                        crash(`Set item ${v} cannot be resolved`)
-                    })`;
-                }
-                if (obj.size > 0)
-                    getQueueOf(obj).push((key) =>
-                        [key, ...obj.values().map(setAdd)].join("")
-                    );
-                return "new Set";
-            }
-            if (Array.isArray(obj)) {
-                return `[${obj
-                    .map((el, i) => inline(el, context) ?? defer(el, key, i))
-                    .join(",")}]`;
-            }
-            if (obj && typeof obj === "object") {
-                const rewrite = ([k, v]: any[]) => [
-                    serializeObjectKey(k),
-                    inline(v, context) ?? defer(v, key, k),
-                ];
-                const content = entries(obj)
-                    .map(rewrite)
-                    .filter(([_, v]) => v !== undefined)
-                    .map(([k, v]) => `${k}: ${v}`);
-                return content.length > 0
-                    ? `{\n\t${content.join(",\n\t")}\n}`
-                    : "{}";
-            }
-            throw new Error(`Cannot deflate object ${obj}`);
+        // Initial optimization
+        graph.optimize(code.named);
+        // The serialization function
+        function serialize(target: any) {
+            if (code.context.has(target)) crash("Object already instantiated");
+            if (!graph.objects.has(target))
+                crash("Potential circular reference");
+            // Obtain a name for the target object
+            code.register(target);
+            // Get expression
+            const handle = handles.resolve(target);
+            const expr = handle.serialize(target, closure(graph, code));
+            // Pull object out of graph
+            graph.remove(target, true);
+            // Clean up the graph
+            graph.optimize(code.named);
+            // Return expression
+            return expr;
         }
-
-        const stmt: string[] = [];
-        const decl = Array.from(this.store.entries())
-            .reverse()
-            .map(([object, key], index, array) => {
-                const expression = compile(object, key);
-                context.set(object, key);
-                let expandRoot = key === root && index === array.length - 1;
-                if (pending.has(object)) {
-                    stmt.push(...pending.get(object)!.map((f) => f(key)));
-                    pending.delete(object);
-                    expandRoot = false;
-                }
-                if (!expandRoot) {
-                    return `${key} = ${expression}`;
-                } else {
-                    root = expression;
-                    return;
-                }
-            })
-            .filter((s) => s !== undefined);
-        return new CompileResult(root, decl as string[], stmt);
+        // Start building
+        while (graph.objects.size > 0) {
+            // Look for next object with most parents
+            const next = lookup(
+                graph.objects
+                    .values()
+                    .filter((e) => e !== root)
+                    .map((e) => [e, graph.refs.stat(e)]),
+                ([_a, a], [_b, b]) => b > a
+            );
+            if (!next) break;
+            const [target] = next;
+            const expr = serialize(target);
+            code.instantiate(target, expr);
+        }
+        // Root object is instantiated last
+        if (graph.objects.has(root)) {
+            // Must be named
+            const expr = serialize(root);
+            code.root = code.instantiate(root, expr);
+        } else {
+            // May be inlineable
+            code.root =
+                closure(graph, code).inline(root) ??
+                crash("Cannot inline root");
+        }
+        // Additional check: objects should be empty
+        if (graph.objects.size > 0) crash("Objects left in graph");
+        // Return the code block
+        return code;
     }
 
     /**
@@ -199,14 +99,23 @@ export class LivingObject {
      * In most cases, "function" should be used.
      * Use "module" when you intend to directly write the result to a js file.
      */
-    static stringify(input: any, target: "module" | "function" = "function") {
-        const result = new LivingObject(input).compile();
+    static stringify(
+        input: any,
+        {
+            target = "function",
+            ...opts
+        }: FormatOptions & {
+            target?: "module" | "function" | ((ret: string) => string);
+        } = {},
+        context?: object
+    ) {
+        const result = new LivingObject(input).compile(context);
         if (target === "module") {
-            return result.toModule();
+            return result.toModule(opts);
         } else if (target === "function") {
-            return result.toFunctionBody();
+            return result.toFunctionBody(opts);
         } else {
-            return result.toString();
+            return result.complete(target, opts);
         }
     }
 
@@ -224,19 +133,19 @@ export class LivingObject {
         context: object = {},
         isolated: boolean = false
     ) {
+        const locals = new Locals(context);
         if (isolated && !inBrowser)
             return LivingObject.evalInNodeVM(input, context);
-        const keys = Object.keys(context).filter(isValidAttributeName);
-        const vals = keys.map((key) => (context as any)[key]);
-        const fn = new Function(...keys, input);
+        // Interpolate injected context as function arguments
+        const fn = new Function(...locals.keys(), `{${input}}`);
         if (!isolated) {
-            return fn(...vals);
+            return fn(...locals.values());
         } else if (inBrowser) {
-            return LivingObject.evalInBrowser(fn, vals);
+            return LivingObject.evalInBrowser(fn, locals.values());
         }
     }
 
-    private static async evalInBrowser(fn: Function, vals: any[]) {
+    private static async evalInBrowser(fn: Function, vals: Iterable<any>) {
         const code = "export default " + fn.toString();
         const blob = new Blob([code], { type: "application/javascript" });
         const url = URL.createObjectURL(blob);
