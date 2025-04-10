@@ -1,4 +1,4 @@
-import { test, banner, code, context } from "./framework/runtime.js";
+import { test, code, session } from "./framework/runtime.js";
 import { stringify } from "living-object";
 
 // Create circular reference
@@ -38,6 +38,6 @@ const object = {
 
 await test("Demo: Function Mode", () => object);
 
-await context("Demo: Module Mode", () => {
+await session("Demo: Module Mode", () => {
     code("output", stringify(object, { target: "module" }));
 });

@@ -71,10 +71,10 @@ function checkInstance(a, b, proto, f) {
 }
 
 export async function equivalence(a, b, checked = new WeakMap(), f = (_) => _) {
+    console.log(">", f("A"), "<=>", f("B"));
     if (checked.has(a) && checked.get(a) === b) {
         return;
     }
-    console.log(">", f("A"), "<=>", f("B"));
     function $(a, b, _f = (_) => f(_) + "[?]") {
         if (typeof _f !== "function") {
             const suffix = _f;
@@ -182,7 +182,7 @@ function prefix(prefix, ...str) {
         .join("\n");
 }
 
-export async function context(description, callback, _origin) {
+export async function session(description, callback, _origin) {
     const origin = _origin ?? stackOrigin(new Error().stack);
     const outFile = descriptionToFileName(description) + ".md";
     const outPath = `${outDir}/${outFile}`;
@@ -227,24 +227,36 @@ export async function context(description, callback, _origin) {
     }
 }
 
+export function assert(cond, message) {
+    if (!cond) {
+        const title = "Assertion failed";
+        const err = new Error(message ? `${title}: ${message}` : title);
+        Error.captureStackTrace(err, assert);
+        throw err;
+    }
+}
+
 /**
  * @param {string} description
  * @param {() => any | Promise<any>} input
  * @param {boolean} execute
+ * @param {...(function({context: any, original: any, inflated: any}): Promise<void>)} additionalTests
  */
-export async function test(description, input) {
-    await context(
+export async function test(description, input, ...additionalTests) {
+    await session(
         description,
         async () => {
+            const context = {};
+
             const producer = await format(input.toString(), {
                 parser: "babel",
             });
             code("producer", producer.trim());
 
-            const original = await input();
+            const original = await input(context);
             code("original", prettyPrint(original));
 
-            const deflated = stringify(original, { pretty: true });
+            const deflated = stringify(original, { pretty: true }, context);
             code(
                 "deflated",
                 (
@@ -258,6 +270,10 @@ export async function test(description, input) {
             code("inflated", prettyPrint(inflated));
 
             await equivalence(original, inflated);
+
+            for (const test of additionalTests) {
+                await test({ context, original, inflated });
+            }
         },
         stackOrigin(new Error().stack)
     );
