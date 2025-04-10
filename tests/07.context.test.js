@@ -1,6 +1,6 @@
-import { test, assert } from "./framework/runtime.js";
+import { test, assert } from './framework/runtime.js';
 
-await test("Basic Context", (context) => {
+await test('Basic Context', (context) => {
     const my_array = [1, 2, 3];
     Object.assign(context, { my_array });
     return function () {
@@ -9,7 +9,7 @@ await test("Basic Context", (context) => {
     };
 });
 
-await test("Self reference", (context) => {
+await test('Self reference', (context) => {
     function self() {
         return self;
     }
@@ -17,9 +17,9 @@ await test("Self reference", (context) => {
     return self;
 });
 
-await test("Readonly Context", (context) => {
+await test('Readonly Context', (context) => {
     const my_array = [1, 2, 3];
-    Object.defineProperty(context, "my_array", {
+    Object.defineProperty(context, 'my_array', {
         value: my_array,
         writable: false,
     });
@@ -28,20 +28,20 @@ await test("Readonly Context", (context) => {
         class RealError extends Error {}
         try {
             my_array = undefined;
-            throw new RealError("should have thrown an error");
+            throw new RealError('should have thrown an error');
         } catch (e) {
             if (e instanceof RealError) {
                 throw e;
             } else {
                 // Expected error
-                console.log("Error thrown as expected:", e);
+                console.log('Error thrown as expected:', e);
             }
         }
     };
 });
 
 await test(
-    "Shared Context",
+    'Shared Context',
     (context) => {
         let local = {
             value: 1,
@@ -59,8 +59,8 @@ await test(
         for (const i of [1, 2, 3, 4, 5]) {
             assert(
                 inflated.set(i) === inflated.get(),
-                "mutation should be propagated"
+                'mutation should be propagated',
             );
         }
-    }
+    },
 );

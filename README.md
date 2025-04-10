@@ -25,7 +25,7 @@ Unlike other solutions that embeds custom protocols into JSON files, **_Living O
 ## Usage
 
 ```js
-import { stringify, parse } from "living-object";
+import { stringify, parse } from 'living-object';
 
 // Create circular reference
 const circular = {};
@@ -36,25 +36,25 @@ const object = {
     circular,
     // pure function
     foo() {
-        return "bar";
+        return 'bar';
     },
     // function with attributes
     bar: Object.assign(
         function () {
-            return "Happy coding!";
+            return 'Happy coding!';
         },
-        { hello: "world" }
+        { hello: 'world' },
     ),
     // undefined and null
     a: [undefined, null],
     b: undefined,
     c: null,
     // Set and Map
-    s: new Set(["a", "b", "c"]),
+    s: new Set(['a', 'b', 'c']),
     m: new Map([
-        ["foo", "bar"],
-        [circular, "circular"],
-        ["circular", circular],
+        ['foo', 'bar'],
+        [circular, 'circular'],
+        ['circular', circular],
     ]),
     // Date object
     time: new Date(),
@@ -68,31 +68,31 @@ console.log(stringify());
 **Output** (`type = 'function'`)
 
 > ```js
-> "use strict";
+> 'use strict';
 > const a = { loop: 0 };
 > a.loop = a;
 > return {
 >     circular: a,
 >     foo: function foo() {
->         return "bar";
+>         return 'bar';
 >     },
 >     bar: Object.assign(
 >         function () {
->             return "Happy coding!";
+>             return 'Happy coding!';
 >         },
->         { hello: "world" }
+>         { hello: 'world' },
 >     ),
 >     a: [undefined, null],
 >     b: undefined,
 >     c: null,
->     s: new Set(["a", "b", "c"]),
+>     s: new Set(['a', 'b', 'c']),
 >     m: new Map([
->         ["foo", "bar"],
->         [a, "circular"],
->         ["circular", a],
+>         ['foo', 'bar'],
+>         [a, 'circular'],
+>         ['circular', a],
 >     ]),
 >     time: new Date(1744286161914),
->     regex: new RegExp("^hello-world$"),
+>     regex: new RegExp('^hello-world$'),
 > };
 > ```
 

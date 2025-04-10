@@ -3,8 +3,8 @@
  * This source code is licensed under the MIT license.
  * You may find the full license in project root directory.
  * ------------------------------------------------------ */
-import { crash, isImmediateValue } from "./util";
-import { type TypeHandles } from "./handles";
+import { crash, isImmediateValue } from './util';
+import { type TypeHandles } from './handles';
 
 class CountMap extends Map<any, number> {
     get(key: any): number {
@@ -102,7 +102,7 @@ export default class Graph {
     remove(obj: any, force = false) {
         this.unlinkParents(obj);
         this.deps.stat(obj) > 0 && !force
-            ? crash("Cannot remove graph node with children")
+            ? crash('Cannot remove graph node with children')
             : this.deps.delete(obj);
         this.objects.delete(obj);
     }
@@ -124,7 +124,7 @@ export default class Graph {
             finished = true;
             for (const obj of this.objects) {
                 if (this.embedded.has(obj))
-                    crash("Internal Error: object already embedded");
+                    crash('Internal Error: object already embedded');
                 if (this.isEdgeNode(obj) && !ignored?.has(obj)) {
                     this.embedded.add(obj);
                     this.objects.delete(obj);

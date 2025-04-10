@@ -3,14 +3,14 @@
  * This source code is licensed under the MIT license.
  * You may find the full license in project root directory.
  * ------------------------------------------------------ */
-import { keywords } from "./keywords";
+import { keywords } from './keywords';
 
 export type PropertyKey = string | number | symbol;
 
-export const inBrowser = typeof window !== "undefined";
+export const inBrowser = typeof window !== 'undefined';
 
 export function crash(...messages: string[]): never {
-    const message = ["[living-objects]", "Error:", ...messages].join(" ");
+    const message = ['[living-objects]', 'Error:', ...messages].join(' ');
     const error = new Error(message);
     Error.captureStackTrace(error, crash);
     debugger;
@@ -18,7 +18,7 @@ export function crash(...messages: string[]): never {
 }
 
 export class NameGenerator {
-    private letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     private counter = 0;
     private excludes: Set<string>;
 
@@ -39,7 +39,7 @@ export class NameGenerator {
             next = result
                 .reverse()
                 .map((c) => this.letters[c])
-                .join("");
+                .join('');
         } while (this.excludes.has(next));
         return next;
     }
@@ -74,7 +74,7 @@ export function concat<T = any>(
  */
 export function lookup<T>(
     iterable: Iterable<T>,
-    replace: (a: T, b: T) => boolean
+    replace: (a: T, b: T) => boolean,
 ): T | undefined {
     let result: T | undefined,
         init: boolean = false;
@@ -90,28 +90,28 @@ export function lookup<T>(
 }
 
 export function isValidVarName(name: PropertyKey): name is string {
-    if (typeof name !== "string") return false;
+    if (typeof name !== 'string') return false;
     return /^[a-zA-Z_$][0-9a-zA-Z_$]*$/.test(name);
 }
 
 export function isImmediateValue(value: any): boolean {
-    if (typeof value === "object" && value !== null) return false;
-    if (typeof value === "function") return false;
+    if (typeof value === 'object' && value !== null) return false;
+    if (typeof value === 'function') return false;
     return true;
 }
 
 function isConciseMethod(f: string, name: string) {
-    if (name.length === 0 || name === "function") return false;
+    if (name.length === 0 || name === 'function') return false;
     f = f.trimStart();
     if (!f.startsWith(name)) return false;
     f = f.slice(name.length).trimStart();
-    return f.startsWith("(");
+    return f.startsWith('(');
 }
 
 export function serializeFunction(target: Function) {
     const raw = target.toString();
     // Strip async prefix
-    const prefix = raw.match(/^\s*async\s+/)?.[0] ?? "";
+    const prefix = raw.match(/^\s*async\s+/)?.[0] ?? '';
     const stripped = raw.slice(prefix.length);
     // Special case:
     // fn() {} (needs fix => function fn() {})
@@ -122,22 +122,22 @@ export function serializeFunction(target: Function) {
     // function () {}
     // function function() {}
     if (isConciseMethod(stripped, target.name))
-        return [prefix.trim(), "function", stripped].join(" ");
+        return [prefix.trim(), 'function', stripped].join(' ');
     else return raw;
 }
 
 export function serializeSymbol(target: symbol) {
     const name = Symbol.keyFor(target);
-    if (name === undefined) throw new Error("Cannot serialize private Symbol");
-    return "Symbol.for(" + JSON.stringify(name) + ")";
+    if (name === undefined) throw new Error('Cannot serialize private Symbol');
+    return 'Symbol.for(' + JSON.stringify(name) + ')';
 }
 
 export function serializeObjectKey(key: string | number | symbol) {
-    if (typeof key === "string") {
+    if (typeof key === 'string') {
         return isValidVarName(key) ? key.toString() : JSON.stringify(key);
-    } else if (typeof key === "number") {
+    } else if (typeof key === 'number') {
         return key.toString();
-    } else if (typeof key === "symbol") {
+    } else if (typeof key === 'symbol') {
         return `[${serializeSymbol(key)}]`;
     } else {
         throw new Error(`Cannot serialize object key ${key}`);
@@ -151,12 +151,12 @@ export class Locals extends Map<string, { value: any; writable: boolean }> {
             return;
         }
         for (const [key, desc] of Object.entries(
-            Object.getOwnPropertyDescriptors(context)
+            Object.getOwnPropertyDescriptors(context),
         )) {
             if (!isValidVarName(key)) continue;
             if (reserved?.has(key)) {
                 console.warn(
-                    `Local variable ${key} dropped due to name conflict`
+                    `Local variable ${key} dropped due to name conflict`,
                 );
                 continue;
             }

@@ -4,12 +4,12 @@
  * You may find the full license in project root directory.
  * ------------------------------------------------------ */
 export interface FormatOptions {
-  /**
-   * @default true
-   */
-  useStrict?: boolean;
-  /**
-   * @default false
-   */
-  pretty?: boolean;
+    /**
+     * @default true
+     */
+    useStrict?: boolean;
+    /**
+     * @default false
+     */
+    pretty?: boolean;
 }

@@ -1,38 +1,38 @@
-import { test } from "./framework/runtime.js";
+import { test } from './framework/runtime.js';
 
-await test("circular reference object", () => {
+await test('circular reference object', () => {
     const loop = {};
     loop.loop = loop;
     return loop;
 });
 
-await test("circular reference array", () => {
+await test('circular reference array', () => {
     const loop = [];
     loop.push(loop);
     return loop;
 });
 
-await test("circular reference (long chain nested array)", () => {
-    const a = ["A"];
-    const b = ["B"];
-    const c = ["C"];
+await test('circular reference (long chain nested array)', () => {
+    const a = ['A'];
+    const b = ['B'];
+    const c = ['C'];
     a.push(b);
     b.push(c);
     c.push(a);
     return a;
 });
 
-await test("circular reference (long chain)", () => {
-    const a = { A: "A" };
-    const b = { B: "A" };
-    const c = { C: "C" };
+await test('circular reference (long chain)', () => {
+    const a = { A: 'A' };
+    const b = { B: 'A' };
+    const c = { C: 'C' };
     a.b = b;
     b.c = c;
     c.a = a;
     return a;
 });
 
-await test("circular reference (cross chain)", () => {
+await test('circular reference (cross chain)', () => {
     const x = {};
     const y = {};
     x.x = x;
@@ -42,7 +42,7 @@ await test("circular reference (cross chain)", () => {
     return x;
 });
 
-await test("circular reference (dup ref array)", () => {
+await test('circular reference (dup ref array)', () => {
     const x = [];
     const y = [];
     x.push(y, y);
@@ -50,8 +50,7 @@ await test("circular reference (dup ref array)", () => {
     return x;
 });
 
-
-await test("circular reference (dup ref object)", () => {
+await test('circular reference (dup ref object)', () => {
     const x = {};
     const y = {};
     x.y1 = y;

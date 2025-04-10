@@ -3,16 +3,16 @@
  * This source code is licensed under the MIT license.
  * You may find the full license in project root directory.
  * ------------------------------------------------------ */
-import { FormatOptions } from "./shared";
-import Graph from "./graph";
+import { FormatOptions } from './shared';
+import Graph from './graph';
 import {
     type TypeHandle,
     type TypeHandles,
     builtinTypeHandles,
-} from "./handles";
-import Code from "./code";
-import { crash, lookup, inBrowser, isValidVarName, Locals } from "./util";
-import closure from "./closure";
+} from './handles';
+import Code from './code';
+import { crash, lookup, inBrowser, isValidVarName, Locals } from './util';
+import closure from './closure';
 
 export default class LivingObject {
     private handles: TypeHandles = builtinTypeHandles;
@@ -41,15 +41,15 @@ export default class LivingObject {
         // Reserve names for locals
         for (const [name, { value, writable }] of locals.entries()) {
             // Assign name
-            code.register(value, { name, type: writable ? "let" : "const" });
+            code.register(value, { name, type: writable ? 'let' : 'const' });
         }
         // Initial optimization
         graph.optimize(code.named);
         // The serialization function
         function serialize(target: any) {
-            if (code.context.has(target)) crash("Object already instantiated");
+            if (code.context.has(target)) crash('Object already instantiated');
             if (!graph.objects.has(target))
-                crash("Potential circular reference");
+                crash('Potential circular reference');
             // Obtain a name for the target object
             code.register(target);
             // Get expression
@@ -70,7 +70,7 @@ export default class LivingObject {
                     .values()
                     .filter((e) => e !== root)
                     .map((e) => [e, graph.refs.stat(e)]),
-                ([_a, a], [_b, b]) => b > a
+                ([_a, a], [_b, b]) => b > a,
             );
             if (!next) break;
             const [target] = next;
@@ -86,10 +86,10 @@ export default class LivingObject {
             // May be inlineable
             code.root =
                 closure(graph, code).inline(root) ??
-                crash("Cannot inline root");
+                crash('Cannot inline root');
         }
         // Additional check: objects should be empty
-        if (graph.objects.size > 0) crash("Objects left in graph");
+        if (graph.objects.size > 0) crash('Objects left in graph');
         // Return the code block
         return code;
     }
@@ -102,17 +102,17 @@ export default class LivingObject {
     static stringify(
         input: any,
         {
-            target = "function",
+            target = 'function',
             ...opts
         }: FormatOptions & {
-            target?: "module" | "function" | ((ret: string) => string);
+            target?: 'module' | 'function' | ((ret: string) => string);
         } = {},
-        context?: object
+        context?: object,
     ) {
         const result = new LivingObject(input).compile(context);
-        if (target === "module") {
+        if (target === 'module') {
             return result.toModule(opts);
-        } else if (target === "function") {
+        } else if (target === 'function') {
             return result.toFunctionBody(opts);
         } else {
             return result.complete(target, opts);
@@ -131,7 +131,7 @@ export default class LivingObject {
     static parse(
         input: string,
         context: object = {},
-        isolated: boolean = false
+        isolated: boolean = false,
     ) {
         const locals = new Locals(context);
         if (isolated && !inBrowser)
@@ -146,8 +146,8 @@ export default class LivingObject {
     }
 
     private static async evalInBrowser(fn: Function, vals: Iterable<any>) {
-        const code = "export default " + fn.toString();
-        const blob = new Blob([code], { type: "application/javascript" });
+        const code = 'export default ' + fn.toString();
+        const blob = new Blob([code], { type: 'application/javascript' });
         const url = URL.createObjectURL(blob);
         const module = await import(url);
         URL.revokeObjectURL(url);
@@ -156,7 +156,7 @@ export default class LivingObject {
 
     private static async evalInNodeVM(input: string, context: object) {
         const code = `(() => {\n${input}\n})()`;
-        const vm = await import("node:vm");
+        const vm = await import('node:vm');
         const ctx = vm.createContext(context);
         const script = new vm.Script(code);
         return await script.runInContext(ctx);

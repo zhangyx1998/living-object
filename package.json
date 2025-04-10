@@ -1,63 +1,68 @@
 {
-  "name": "living-object",
-  "version": "0.0.0-beta.0",
-  "description": "Compile JS objects into revivable JS code strings",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs",
-      "default": "./dist/index.mjs"
+    "name": "living-object",
+    "version": "0.0.0-beta.0",
+    "description": "Compile JS objects into revivable JS code strings",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "require": "./dist/index.cjs",
+            "import": "./dist/index.mjs",
+            "default": "./dist/index.mjs"
+        }
+    },
+    "scripts": {
+        "install:tests": "cd tests && npm install && cd ..",
+        "init": "run-p install:examples install:tests",
+        "pretest": "npm run install:tests > /dev/null",
+        "test": "node tests",
+        "test:isolate": "ISOLATE=1 node tests",
+        "test:clean": "rm -r tests/*.test.log",
+        "prebuild": "mkdir -p dist && rm -rf dist/*",
+        "build": "run-s build:check build:rollup;",
+        "build:check": "tsc --noEmit",
+        "build:rollup": "rollup --config rollup.config.ts --configPlugin esbuild",
+        "update-version": "printf 'version: '; read ver && npm version ${ver}",
+        "prerelease": "run-s build test update-version",
+        "release": "npm login; npm publish --access public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/zhangyx1998/living-object.git"
+    },
+    "keywords": [
+        "JS",
+        "serializer"
+    ],
+    "author": "Yuxuan Zhang",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/zhangyx1998/living-object/issues"
+    },
+    "homepage": "https://github.com/zhangyx1998/living-object#readme",
+    "simple-git-hooks": {
+        "pre-commit": "npx lint-staged"
+    },
+    "lint-staged": {
+        "*": [
+            "prettier --write --ignore-unknown"
+        ]
+    },
+    "devDependencies": {
+        "@types/node": "^22.14.0",
+        "esbuild": "^0.25.2",
+        "npm-run-all": "^4.1.5",
+        "prettier": "^3.5.3",
+        "rollup": "^4.39.0",
+        "rollup-plugin-dts": "^6.2.1",
+        "rollup-plugin-esbuild": "^6.2.1",
+        "simple-git-hooks": "^2.12.1",
+        "typescript": "^5.8.3"
+    },
+    "prettier": {
+        "tabWidth": 4,
+        "singleQuote": true,
+        "trailingComma": "all"
     }
-  },
-  "scripts": {
-    "install:tests": "cd tests && npm install && cd ..",
-    "init": "run-p install:examples install:tests",
-    "pretest": "npm run install:tests > /dev/null",
-    "test": "node tests",
-    "test:isolate": "ISOLATE=1 node tests",
-    "test:clean": "rm -r tests/*.test.log",
-    "prebuild": "mkdir -p dist && rm -rf dist/*",
-    "build": "run-s build:check build:rollup;",
-    "build:check": "tsc --noEmit",
-    "build:rollup": "rollup --config rollup.config.ts --configPlugin esbuild",
-    "update-version": "printf 'version: '; read ver && npm version ${ver}",
-    "prerelease": "run-s build test update-version",
-    "release": "npm login; npm publish --access public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/zhangyx1998/living-object.git"
-  },
-  "keywords": [
-    "JS",
-    "serializer"
-  ],
-  "author": "Yuxuan Zhang",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/zhangyx1998/living-object/issues"
-  },
-  "homepage": "https://github.com/zhangyx1998/living-object#readme",
-  "simple-git-hooks": {
-    "pre-commit": "npx lint-staged"
-  },
-  "lint-staged": {
-    "*": [
-      "prettier --write --ignore-unknown"
-    ]
-  },
-  "devDependencies": {
-    "@types/node": "^22.14.0",
-    "esbuild": "^0.25.2",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^3.5.3",
-    "rollup": "^4.39.0",
-    "rollup-plugin-dts": "^6.2.1",
-    "rollup-plugin-esbuild": "^6.2.1",
-    "simple-git-hooks": "^2.12.1",
-    "typescript": "^5.8.3"
-  }
 }

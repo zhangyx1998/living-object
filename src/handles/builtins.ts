@@ -1,14 +1,14 @@
-import { type TypeHandle } from ".";
+import { type TypeHandle } from '.';
 import {
     concat,
     isValidVarName,
     serializeSymbol,
     serializeFunction,
     serializeObjectKey,
-} from "../util";
+} from '../util';
 
 const Generic = <TypeHandle<Object>>{
-    match: (obj) => typeof obj === "object" && obj !== null,
+    match: (obj) => typeof obj === 'object' && obj !== null,
     traverse: (obj) => {
         const keys = [
             ...Object.keys(obj),
@@ -36,9 +36,9 @@ const Generic = <TypeHandle<Object>>{
                         return `${s}[${inline(k)}]=${expr}`;
                     }
                 });
-            code.push([key, val].join(":"));
+            code.push([key, val].join(':'));
         }
-        return `{${code.join(",")}}`;
+        return `{${code.join(',')}}`;
     },
 };
 
@@ -47,17 +47,17 @@ type Primitive = string | number | boolean | undefined | symbol | bigint | null;
 export default {
     Primitive: <TypeHandle<Primitive>>{
         match: (obj) =>
-            typeof obj === "string" ||
-            typeof obj === "number" ||
-            typeof obj === "boolean" ||
-            typeof obj === "undefined" ||
-            typeof obj === "symbol" ||
-            typeof obj === "bigint" ||
+            typeof obj === 'string' ||
+            typeof obj === 'number' ||
+            typeof obj === 'boolean' ||
+            typeof obj === 'undefined' ||
+            typeof obj === 'symbol' ||
+            typeof obj === 'bigint' ||
             obj === null,
         serialize: (value) => {
-            if (typeof value === "symbol") return serializeSymbol(value);
-            if (typeof value === "bigint") return value.toString() + "n";
-            return JSON.stringify(value) ?? "undefined";
+            if (typeof value === 'symbol') return serializeSymbol(value);
+            if (typeof value === 'bigint') return value.toString() + 'n';
+            return JSON.stringify(value) ?? 'undefined';
         },
     },
     Date: <TypeHandle<Date>>{
@@ -102,13 +102,13 @@ export default {
                     [
                         ref(self),
                         ...deferred.map(
-                            ([k, v]) => `.set(${inline(k)}, ${inline(v)})`
+                            ([k, v]) => `.set(${inline(k)}, ${inline(v)})`,
                         ),
-                    ].join("")
+                    ].join(''),
                 );
             }
             if (inlined.length > 0) {
-                return `new Map([${inlined.join(",")}])`;
+                return `new Map([${inlined.join(',')}])`;
             } else {
                 return `new Map`;
             }
@@ -130,11 +130,11 @@ export default {
                     [
                         ref(self),
                         ...deferred.map((v) => `.add(${inline(v)})`),
-                    ].join("")
+                    ].join(''),
                 );
             }
             if (inlined.length > 0) {
-                return `new Set([${inlined.join(",")}])`;
+                return `new Set([${inlined.join(',')}])`;
             } else {
                 return `new Set`;
             }
@@ -148,14 +148,14 @@ export default {
                 (v, i) =>
                     inline(v) ??
                     defer(
-                        ({ ref, inline }) => `${ref(self)}[${i}]=${inline(v)}`
-                    )
+                        ({ ref, inline }) => `${ref(self)}[${i}]=${inline(v)}`,
+                    ),
             );
-            return `[${result.join(",")}]`;
+            return `[${result.join(',')}]`;
         },
     },
     Function: <TypeHandle<Function>>{
-        match: (obj) => typeof obj === "function",
+        match: (obj) => typeof obj === 'function',
         traverse: Generic.traverse!,
         serialize(fn, ctx) {
             const body = serializeFunction(fn);

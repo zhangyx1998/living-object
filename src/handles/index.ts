@@ -3,14 +3,14 @@
  * This source code is licensed under the MIT license.
  * You may find the full license in project root directory.
  * ------------------------------------------------------ */
-import { iter, concat } from "../util";
+import { iter, concat } from '../util';
 
 export declare namespace Hooks {
     type Ref = (target: Object | Function, immediate?: boolean) => string;
     type Inline = (val: any, immediate?: boolean) => string | undefined;
     type Defer = (
         resolve: (hooks: StatementHooks) => string | Iterable<string>,
-        placeholder?: string
+        placeholder?: string,
     ) => string;
     interface StatementHooks {
         ref: (target: Object | Function) => string;
@@ -123,17 +123,17 @@ export class TypeHandles extends Array<TypeHandle> {
         if (this.extends) {
             return concat(
                 iter(this.extends),
-                iterSelf
+                iterSelf,
             ) as ArrayIterator<TypeHandle>;
         }
         return iterSelf;
     }
 }
 
-export { default as builtins } from "./builtins";
+export { default as builtins } from './builtins';
 
-import builtins from "./builtins";
+import builtins from './builtins';
 
 export const builtinTypeHandles = Object.freeze(
-    new TypeHandles(...Object.values(builtins))
+    new TypeHandles(...Object.values(builtins)),
 );

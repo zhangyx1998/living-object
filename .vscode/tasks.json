@@ -1,13 +1,13 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "npm",
-			"script": "build:rollup",
-			"group": "build",
-			"problemMatcher": [],
-			"label": "npm: build:rollup",
-			"detail": "rollup --config rollup.config.ts --configPlugin esbuild"
-		}
-	]
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "npm",
+            "script": "build:rollup",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "npm: build:rollup",
+            "detail": "rollup --config rollup.config.ts --configPlugin esbuild"
+        }
+    ]
 }

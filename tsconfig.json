@@ -1,13 +1,13 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "strict": true,
-    "moduleResolution": "node",
-    "skipLibCheck": true,
-    "noUnusedLocals": true,
-    "sourceMap": true,
-    "outDir": "dist"
-  },
-  "include": ["src"]
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "strict": true,
+        "moduleResolution": "node",
+        "skipLibCheck": true,
+        "noUnusedLocals": true,
+        "sourceMap": true,
+        "outDir": "dist"
+    },
+    "include": ["src"]
 }

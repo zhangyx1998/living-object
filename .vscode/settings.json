@@ -1,0 +1,5 @@
+{
+    "prettier.prettierPath": "./node_modules/prettier",
+    "editor.detectIndentation": false,
+    "editor.tabSize": 4
+}
