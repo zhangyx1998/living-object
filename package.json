@@ -1,6 +1,6 @@
 {
     "name": "living-object",
-    "version": "0.0.0-beta.0",
+    "version": "0.0.0-beta.1",
     "description": "Compile JS objects into revivable JS code strings",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
