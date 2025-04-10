@@ -1,60 +1,42 @@
-import { stringify, parse } from "living-object";
-import { readFileSync } from "fs";
+import { test } from "./framework/runtime.js";
+import { readFile } from "fs/promises";
 
-function ensureMatch(name, input) {
-  console.log("=====", name, "=====");
-  const deflated = stringify(input);
-  console.log(deflated);
-  const inflated = parse(deflated);
-  console.log(inflated);
-  console.assert(JSON.stringify(inflated) === JSON.stringify(input), "object mismatch");
-}
+await test("Basic types: string", () => "hello world");
+await test("Basic types: number", () => 123);
+await test("Basic types: number", () => 123.456);
+await test("Basic types: boolean", () => true);
+await test("Basic types: boolean", () => false);
+await test("Basic types: undefined", () => undefined);
+await test("Basic types: null", () => null);
 
-// Basic types
-ensureMatch("Basic types: string", "hello world");
-ensureMatch("Basic types: number", 123);
-ensureMatch("Basic types: number", 123.456);
-ensureMatch("Basic types: boolean", true);
-ensureMatch("Basic types: boolean", false);
-ensureMatch("Basic types: undefined", undefined);
-ensureMatch("Basic types: null", null);
+await test("Empty object", () => ({}));
 
-// Empty object
-ensureMatch("Empty object", {});
+await test("Large object", async () => {
+  return JSON.parse(await readFile("01.basic.test.json"));
+});
 
-// Large JSON object
-ensureMatch("Large object", JSON.parse(readFileSync("01.basic.test.json", "utf8")));
+await test("Empty object", () => []);
 
-// Empty array
-ensureMatch("Empty object", []);
+await test("Array as root object", () => [
+  1,
+  2.345,
+  true,
+  false,
+  "hello",
+  null,
+  undefined,
+  {},
+  [],
+]);
 
-// Array as root object
-ensureMatch("Array as root value", [1, 2.345, true, false, "hello", null, undefined]);
+await test("BigInt Constructor", () => ({
+  hugeDec: BigInt("9007199254740991"),
+  hugeHex: BigInt("0x1fffffffffffff"),
+  hugeOct: BigInt("0o377777777777777777"),
+}));
 
-// BigInt Constructor
-{
-  const hugeDec = BigInt("9007199254740991");
-  const hugeHex = BigInt("0x1fffffffffffff");
-  const hugeOct = BigInt("0o377777777777777777");
-  const deflated = stringify({ hugeDec, hugeHex, hugeOct });
-  console.log(deflated);
-  const inflated = parse(deflated);
-  console.log(inflated);
-  console.assert(inflated.hugeDec === hugeDec, "hugeDec mismatch");
-  console.assert(inflated.hugeHex === hugeHex, "hugeHex mismatch");
-  console.assert(inflated.hugeOct === hugeOct, "hugeOct mismatch");
-}
-
-// BigInt Literal
-{
-  const hugeDec = 9007199254740991n;
-  const hugeHex = 0x1fffffffffffffn;
-  const hugeOct = 0o377777777777777777n;
-  const deflated = stringify({ hugeDec, hugeHex, hugeOct });
-  console.log(deflated);
-  const inflated = parse(deflated);
-  console.log(inflated);
-  console.assert(inflated.hugeDec === hugeDec, "hugeDec mismatch");
-  console.assert(inflated.hugeHex === hugeHex, "hugeHex mismatch");
-  console.assert(inflated.hugeOct === hugeOct, "hugeOct mismatch");
-}
+await test("BigInt Constructor", () => ({
+  hugeDec: 9007199254740991n,
+  hugeHex: 0x1fffffffffffffn,
+  hugeOct: 0o377777777777777777n,
+}));

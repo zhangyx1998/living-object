@@ -17,6 +17,7 @@
     "init": "run-p install:examples install:tests",
     "pretest": "npm run install:tests > /dev/null",
     "test": "node tests",
+    "test:isolate": "ISOLATE=1 node tests",
     "prebuild": "mkdir -p dist && rm -rf dist/*",
     "build": "run-s build:check build:rollup;",
     "build:check": "tsc --noEmit",

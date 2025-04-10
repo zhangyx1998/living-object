@@ -132,6 +132,3 @@ dist
 
 # examples and tests do not need package-lock
 */**/package-lock.json
-
-# VSCode
-.vscode
