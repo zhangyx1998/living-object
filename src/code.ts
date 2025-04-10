@@ -147,7 +147,7 @@ export default class Code extends Array<CodeBlock> {
     complete(statement?: (ret: string) => string, opt?: FormatOptions) {
         return [this.toString(opt), statement ? statement(this.root) + ';' : '']
             .filter(Boolean)
-            .join(opt?.pretty ? '\n' : '');
+            .join('');
     }
 
     toModule(opt?: FormatOptions) {

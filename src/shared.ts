@@ -8,8 +8,4 @@ export interface FormatOptions {
      * @default true
      */
     useStrict?: boolean;
-    /**
-     * @default false
-     */
-    pretty?: boolean;
 }
