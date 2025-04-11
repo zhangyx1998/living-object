@@ -4,7 +4,7 @@
     "dependencies": {
         "@base2/pretty-print-object": "^1.0.2",
         "chalk": "^5.3.0",
-        "living-object": "file:..",
+        "living-object": "file:../dist/",
         "prettier": "^3.5.3"
     }
 }

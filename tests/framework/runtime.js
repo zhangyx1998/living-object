@@ -71,7 +71,7 @@ function checkInstance(a, b, proto, f) {
 }
 
 export async function equivalence(a, b, checked = new WeakMap(), f = (_) => _) {
-    console.log('>', f('A'), '<=>', f('B'));
+    process.stdout.write(['>', f('A'), '<=>', f('B')].join(' ') + '\n');
     if (checked.has(a) && checked.get(a) === b) {
         return;
     }
@@ -135,12 +135,12 @@ export async function equivalence(a, b, checked = new WeakMap(), f = (_) => _) {
 
 export function banner(description) {
     const line = '='.repeat(description.length);
-    console.log(`${line}\n${description}\n${line}\n`);
+    process.stdout.write(`${line}\n${description}\n${line}\n\n`);
 }
 
 export function code(description, code, type = 'js') {
-    console.log(
-        [`#### ${description}\n`, '```' + type, code, '```', ''].join('\n'),
+    process.stdout.write(
+        [`#### ${description}\n`, '```' + type, code, '```', '', ''].join('\n'),
     );
 }
 
@@ -172,14 +172,6 @@ function stackOrigin(stack, pos = 1) {
     while (loc.startsWith('at ')) loc = loc.slice(2).trim();
     while (loc.startsWith('file://')) loc = loc.slice(7).trim();
     return relative(loc);
-}
-
-function prefix(prefix, ...str) {
-    return str
-        .join(' ')
-        .split('\n')
-        .map((s) => `${prefix} ${s}`)
-        .join('\n');
 }
 
 export async function session(description, callback, _origin) {
