@@ -3,11 +3,11 @@
     "tasks": [
         {
             "type": "npm",
-            "script": "build:rollup",
+            "script": "build:debug",
             "group": "build",
             "problemMatcher": [],
-            "label": "npm: build:rollup",
-            "detail": "rollup --config rollup.config.ts --configPlugin esbuild"
+            "label": "npm: build:debug",
+            "detail": "build:debug"
         }
     ]
 }

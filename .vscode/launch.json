@@ -10,7 +10,7 @@
             "name": "debug tests",
             "cwd": "${workspaceFolder}/tests/",
             "program": "${workspaceFolder}/tests/framework/debug.js",
-            "preLaunchTask": "npm: build:rollup",
+            "preLaunchTask": "npm: build:debug",
             "skipFiles": ["<node_internals>/**"],
             "outFiles": ["${workspaceFolder}/dist/**/*.js"]
         }

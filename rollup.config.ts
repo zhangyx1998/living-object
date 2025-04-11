@@ -1,44 +1,107 @@
+/* ---------------------------------------------------------
+ * Copyright (c) 2025-present Yuxuan Zhang, web-dev@z-yx.cc
+ * This source code is licensed under the MIT license.
+ * You may find the full license in project root directory.
+ * ------------------------------------------------------ */
 import { resolve } from 'path';
+import { readFileSync, rmdirSync } from 'fs';
 import { fileURLToPath } from 'url';
-import { type RollupOptions } from 'rollup';
+import { defineConfig, type Plugin } from 'rollup';
 import esbuild from 'rollup-plugin-esbuild';
-import { dts } from 'rollup-plugin-dts';
+import { dts as dtsPlugin } from 'rollup-plugin-dts';
+import terser from '@rollup/plugin-terser';
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '..');
-const r = (...p: string[]) => resolve(ROOT, ...p);
+const $ = (...p: string[]) => resolve(ROOT, ...p);
 
-const config: RollupOptions[] = [];
+function pick(input: Record<string, any>, ...keys: string[]) {
+    return Object.fromEntries(keys.map((k) => [k, input[k]]));
+}
 
-// ESM Build
-config.push({
-    input: r('src', 'index.ts'),
-    output: {
-        format: 'esm',
-        file: r('dist', 'index.mjs'),
-        sourcemap: true,
-    },
-    plugins: [esbuild({ target: 'node18' })],
+const pkg = JSON.parse(readFileSync($('package.json'), 'utf-8'));
+const distKeys = [
+    'name',
+    'version',
+    'description',
+    'exports',
+    'license',
+    'author',
+    'repository',
+    'homepage',
+    'keywords',
+    'dependencies',
+];
+
+function packageMeta(isProduction: boolean, exports = {}): Plugin {
+    // In debug build, strip other fields to prevent accidental publish
+    const packageJSON = isProduction
+        ? pick({ ...pkg, exports }, ...distKeys)
+        : { exports };
+    return {
+        name: 'package-meta',
+        buildStart() {
+            this.emitFile({
+                type: 'asset',
+                fileName: 'package.json',
+                source: JSON.stringify(packageJSON, null, 2),
+            });
+            if (!isProduction) return;
+            readFileSync($('LICENSE'), 'utf-8');
+            this.emitFile({
+                type: 'asset',
+                fileName: 'LICENSE',
+                source: readFileSync($('LICENSE'), 'utf-8'),
+            });
+        },
+    };
+}
+
+export default defineConfig((commandLineArgs) => {
+    const dst = 'dist';
+    rmdirSync(dst, { recursive: true });
+    const isProduction = commandLineArgs.configDebug !== true;
+    const sourcemap = isProduction ? false : 'inline';
+    const index = isProduction ? 'index' : 'index.debug';
+    const [mjs, cjs, dts] = [`${index}.mjs`, `${index}.cjs`, `${index}.d.ts`];
+    const exports = {
+        '.': {
+            import: `./${mjs}`,
+            require: `./${cjs}`,
+            types: `./${dts}`,
+        },
+    };
+    return [
+        // ESM Build
+        {
+            input: $('src', `index.ts`),
+            output: {
+                format: 'esm',
+                file: $(dst, mjs),
+                sourcemap,
+            },
+            plugins: [esbuild({ target: 'node18' }), terser()],
+        },
+        // CJS Build
+        {
+            input: $('src', `index.ts`),
+            output: {
+                format: 'cjs',
+                file: $(dst, cjs),
+                sourcemap,
+            },
+            plugins: [esbuild({ target: 'node18' }), terser()],
+        },
+        // d.ts Build
+        {
+            input: $('src', `index.ts`),
+            output: {
+                format: 'esm',
+                file: $(dst, dts),
+            },
+            plugins: [
+                dtsPlugin({ respectExternal: true }),
+                packageMeta(isProduction, exports),
+            ],
+        },
+    ];
 });
-
-// CJS Build
-config.push({
-    input: r('src', 'index.ts'),
-    output: {
-        format: 'cjs',
-        file: r('dist', 'index.cjs'),
-        sourcemap: true,
-    },
-    plugins: [esbuild({ target: 'node18' })],
-});
-
-// d.ts Build
-config.push({
-    input: r('src/index.ts'),
-    output: {
-        format: 'esm',
-        file: r('dist', 'index.d.ts'),
-    },
-    plugins: [dts({ respectExternal: true })],
-});
-
-export default config;
