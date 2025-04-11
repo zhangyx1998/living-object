@@ -21,7 +21,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/zhangyx1998/living-object.git"
+        "url": "https://github.com/zhangyx1998/living-object/"
     },
     "keywords": [
         "JS",

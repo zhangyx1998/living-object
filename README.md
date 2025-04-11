@@ -4,6 +4,8 @@ Living Object serializes JS Objects into executable JS code. It preserves circul
 
 Unlike other solutions that embeds custom protocols into JSON files, **_Living Object_ directly generates executable JavaScript code**. Therefore, it's result can be **directly imported as ES Module** or **evaluated in a wrapper function**, achieving **minimal performance overhead** on the consumer side.
 
+<!-- LINK TO DOCUMENTATION -->
+
 ## Supported Data Types
 
 - ✅ Circular Reference & Strict Object Equality 🔥
@@ -110,10 +112,10 @@ console.log(stringify());
 
 > Documentation Coming Soon
 >
-> Please refer to [builtins.ts](src/handles/builtins.ts) for examples.
+> Please refer to [builtins.ts](./src/handles/builtins.ts) for examples.
 
 ## Advanced: Context Injection
 
 > Documentation Coming Soon
 >
-> Please refer to [context.test.js](tests/07.context.test.js) for examples.
+> Please refer to [context.test.js](./tests/07.context.test.js) for examples.

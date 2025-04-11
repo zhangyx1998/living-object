@@ -10,6 +10,7 @@ import { defineConfig, type Plugin } from 'rollup';
 import esbuild from 'rollup-plugin-esbuild';
 import { dts as dtsPlugin } from 'rollup-plugin-dts';
 import terser from '@rollup/plugin-terser';
+import transformREADME from './scripts/transformREADME';
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '..');
 const $ = (...p: string[]) => resolve(ROOT, ...p);
@@ -18,7 +19,11 @@ function pick(input: Record<string, any>, ...keys: string[]) {
     return Object.fromEntries(keys.map((k) => [k, input[k]]));
 }
 
-const pkg = JSON.parse(readFileSync($('package.json'), 'utf-8'));
+function read(file: string) {
+    return readFileSync($(file), 'utf-8');
+}
+
+const pkg = JSON.parse(read('package.json'));
 const distKeys = [
     'name',
     'version',
@@ -47,11 +52,15 @@ function packageMeta(isProduction: boolean, exports = {}): Plugin {
                 source: JSON.stringify(packageJSON, null, 2),
             });
             if (!isProduction) return;
-            readFileSync($('LICENSE'), 'utf-8');
             this.emitFile({
                 type: 'asset',
                 fileName: 'LICENSE',
-                source: readFileSync($('LICENSE'), 'utf-8'),
+                source: read('LICENSE'),
+            });
+            this.emitFile({
+                type: 'asset',
+                fileName: 'README.md',
+                source: transformREADME(read('README.md'), pkg),
             });
         },
     };
