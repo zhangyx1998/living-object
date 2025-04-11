@@ -10,9 +10,10 @@ Unlike other solutions that embeds custom protocols into JSON files, **_Living O
 
 - ✅ Circular Reference & Strict Object Equality 🔥
 - ✅ Pure Functions (preserving attributes) 🔥
-- ✅ Custom Object Interface (API) 🔥
+- ✅ Custom Object API 🔥
 - ✅ `undefined`, `null`
 - ✅ Global Symbols
+- ✅ Sparse Array
 - ✅ Map
 - ✅ Set
 - ✅ Date

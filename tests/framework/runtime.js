@@ -46,7 +46,7 @@ class Mismatch extends Error {
     toString() {
         return [
             '####',
-            e.message ?? 'Mismatch',
+            this.message ?? 'Mismatch',
             '',
             '```diff',
             ...this,
@@ -96,7 +96,7 @@ export async function equivalence(a, b, checked = new WeakMap(), f = (_) => _) {
         b === null
     ) {
         if (a !== b) {
-            throw new Mismatch('Value mismatch', [a, b], f);
+            throw new Mismatch('Value mismatch', [a, b, f]);
         }
         return;
     }
@@ -193,10 +193,7 @@ export async function session(description, callback, _origin) {
         flag_failed = true;
         banner('TEST FAILED');
         if (e instanceof Mismatch) {
-            console.log('####', e.message ?? 'Mismatch');
-            console.log('\n```diff');
-            console.log(e.diff());
-            console.log('```');
+            console.log(e.toString());
         } else {
             console.error(e);
             debugger;

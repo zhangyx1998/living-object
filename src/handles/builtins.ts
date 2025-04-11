@@ -3,7 +3,7 @@
  * This source code is licensed under the MIT license.
  * You may find the full license in project root directory.
  * ------------------------------------------------------ */
-import { type TypeHandle } from '.';
+import { SerializeContext, type TypeHandle } from '.';
 import {
     concat,
     isValidVarName,
@@ -12,40 +12,39 @@ import {
     serializeObjectKey,
 } from '../util';
 
-const Generic = <TypeHandle<Object>>{
-    match: (obj) => typeof obj === 'object' && obj !== null,
-    traverse: (obj) => {
-        const keys = [
-            ...Object.keys(obj),
-            ...Object.getOwnPropertySymbols(obj),
-        ];
-        return keys.map((k) => (obj as any)[k]);
-    },
-    serialize(self, { inline, defer }) {
-        const code: string[] = [];
-        for (const k of [
-            ...Object.keys(self),
-            ...Object.getOwnPropertySymbols(self),
-        ]) {
-            const v = (self as any)[k];
-            const key = serializeObjectKey(k);
-            const val =
-                inline(v) ??
-                // When a property cannot be inlined, defer it as an assignment statement
-                defer(({ ref, inline }) => {
-                    const s = ref(self),
-                        expr = inline(v);
-                    if (isValidVarName(k)) {
-                        return `${s}.${k}=${expr}`;
-                    } else {
-                        return `${s}[${inline(k)}]=${expr}`;
-                    }
-                });
-            code.push([key, val].join(':'));
-        }
-        return `{${code.join(',')}}`;
-    },
-};
+function keys(obj: any): PropertyKey[] {
+    return [...Object.keys(obj), ...Object.getOwnPropertySymbols(obj)];
+}
+
+function values(obj: any): any[] {
+    return keys(obj).map((k) => (obj as any)[k]);
+}
+
+function serializeObject(
+    self: any,
+    { inline, defer }: SerializeContext,
+    subset?: Iterable<PropertyKey>,
+) {
+    const code: string[] = [];
+    for (const k of subset ?? keys(self)) {
+        const v = (self as any)[k];
+        const key = serializeObjectKey(k);
+        const val =
+            inline(v) ??
+            // When a property cannot be inlined, defer it as an assignment statement
+            defer(({ ref, inline }) => {
+                const s = ref(self),
+                    expr = inline(v);
+                if (isValidVarName(k)) {
+                    return `${s}.${k}=${expr}`;
+                } else {
+                    return `${s}[${inline(k)}]=${expr}`;
+                }
+            });
+        code.push([key, val].join(':'));
+    }
+    return `{${code.join(',')}}`;
+}
 
 type Primitive = string | number | boolean | undefined | symbol | bigint | null;
 
@@ -77,9 +76,8 @@ export default {
         match: (obj) => obj instanceof Error,
         traverse: (self) => [self.message, self.stack, ...Object.values(self)],
         serialize: (self, ctx) => {
-            const { name, message, stack, ...attrs } = self;
-            const assign = Generic.serialize({ message, stack, ...attrs }, ctx);
-            return `Object.assign(new Error(${JSON.stringify(name)}),${assign})`;
+            const data = serializeObject(self, ctx);
+            return `Object.assign(new Error,${data})`;
         },
     },
     Map: <TypeHandle<Map<any, any>>>{
@@ -147,36 +145,58 @@ export default {
     },
     Array: <TypeHandle<Array<any>>>{
         match: (obj) => Array.isArray(obj),
-        traverse: (self) => self.values(),
-        serialize(self, { inline, defer }) {
-            const result = self.map(
-                (v, i) =>
+        traverse: values,
+        serialize(self, ctx) {
+            const { inline, defer } = ctx;
+            const allKeys = new Set(keys(self));
+            // Determine if length needs to be explicitly set
+            if (!allKeys.has((self.length - 1).toString()))
+                allKeys.add('length');
+            // Dense elements in an array that can be directly put into []
+            const denseItems: string[] = [];
+            // Assume the array is dense
+            for (const i of self.keys()) {
+                if (!allKeys.delete(i.toString())) break;
+                const v = (self as any)[i];
+                denseItems.push(
                     inline(v) ??
-                    defer(
-                        ({ ref, inline }) => `${ref(self)}[${i}]=${inline(v)}`,
-                    ),
-            );
-            return `[${result.join(',')}]`;
+                        defer(
+                            ({ ref, inline }) =>
+                                `${ref(self)}[${i}]=${inline(v)}`,
+                        ),
+                );
+            }
+            // Collect all dense elements into an array expression
+            const denseExpr = `[${denseItems.join(',')}]`;
+            // If there are any sparse elements, assign them to the array
+            if (allKeys.size > 0) {
+                const sparseExpr = serializeObject(self, ctx, allKeys);
+                return `Object.assign(${denseExpr},${sparseExpr})`;
+            } else {
+                return denseExpr;
+            }
         },
     },
     Function: <TypeHandle<Function>>{
         match: (obj) => typeof obj === 'function',
-        traverse: Generic.traverse!,
+        traverse: values,
         serialize(fn, ctx) {
             const body = serializeFunction(fn);
-            if (
-                Object.keys(fn).length > 0 ||
-                Object.getOwnPropertySymbols(fn).length > 0
-            ) {
-                const extras = Generic.serialize(fn, ctx);
+            if (keys(fn).length > 0) {
+                const extras = serializeObject(fn, ctx);
                 return `Object.assign(${body},${extras})`;
             } else if (fn.name.length > 0) {
                 return body;
             } else {
-                // Avoid name pollution
+                // Avoid name pollution from assignment expressions.
+                // e.g. `const a = function () {}; a.name` => "a" (bad)
                 return `(0,${body})`;
             }
         },
     },
-    Object: Generic,
+    Object: <TypeHandle<Object>>{
+        match: (obj) => typeof obj === 'object' && obj !== null,
+        traverse: values,
+        serialize: serializeObject,
+    },
 };

@@ -13,7 +13,6 @@ export function crash(...messages: string[]): never {
     const message = ['[living-objects]', 'Error:', ...messages].join(' ');
     const error = new Error(message);
     Error.captureStackTrace(error, crash);
-    debugger;
     throw error;
 }
 

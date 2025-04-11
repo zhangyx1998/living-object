@@ -40,3 +40,19 @@ await test('BigInt Constructor', () => ({
     hugeHex: 0x1fffffffffffffn,
     hugeOct: 0o377777777777777777n,
 }));
+
+await test('Empty array', () => new Array(1000));
+await test('Sparse array (1)', () => Object.assign([], { 100: 1, 200: 2 }));
+await test('Sparse array (2)', () =>
+    Object.assign([], { 100: 1, 200: 2, length: 300 }));
+await test('Array with extra attributes', () => {
+    const arr = [1, 2, 3, 4, 5];
+    return Object.assign(arr, {
+        100: 1,
+        200: 2,
+        300: arr,
+        length: 1000,
+        foo: 'bar',
+        // self: arr,
+    });
+});
