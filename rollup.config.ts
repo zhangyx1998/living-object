@@ -28,6 +28,7 @@ const distKeys = [
     'author',
     'repository',
     'homepage',
+    'bugs',
     'keywords',
     'dependencies',
 ];
