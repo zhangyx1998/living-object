@@ -64,58 +64,60 @@ const object = {
     regex: /^hello-world$/gi,
 };
 
-console.log(stringify());
+console.log(stringify(object));
 ```
 
 **Output** (`type = 'function'`)
 
-> ```js
-> 'use strict';
-> const a = { loop: 0 };
-> a.loop = a;
-> return {
->     circular: a,
->     foo: function foo() {
->         return 'bar';
->     },
->     bar: Object.assign(
->         function () {
->             return 'Happy coding!';
->         },
->         { hello: 'world' },
->     ),
->     a: [undefined, null],
->     b: undefined,
->     c: null,
->     s: new Set(['a', 'b', 'c']),
->     m: new Map([
->         ['foo', 'bar'],
->         [a, 'circular'],
->         ['circular', a],
->     ]),
->     time: new Date(1744286161914),
->     regex: new RegExp('^hello-world$'),
-> };
-> ```
+```js
+'use strict';
+const A = { loop: 0 };
+A.loop = A;
+return {
+    circular: A,
+    foo: function foo() {
+        return 'bar';
+    },
+    bar: Object.assign(
+        function () {
+            return 'Happy coding!';
+        },
+        { hello: 'world' },
+    ),
+    a: [undefined, null],
+    b: undefined,
+    c: null,
+    s: new Set(['a', 'b', 'c']),
+    m: new Map([
+        ['foo', 'bar'],
+        [A, 'circular'],
+        ['circular', A],
+    ]),
+    time: new Date(1744335826842),
+    regex: new RegExp('^hello-world$'),
+};
+```
 
 **Output** (`type = 'module'`)
 
-> ```diff
->   ...
-> - return {
-> + export default {
->     ... // unchanged lines omitted
->   };
-> ```
+```diff
+  "use strict";
+  const A = { loop: 0 };
+  A.loop = A;
+- return {
++ export default {
+    ... // unchanged lines omitted
+  };
+```
 
 ## Advanced: Custom Object API
 
-> Documentation Coming Soon
->
-> Please refer to [builtins.ts](./src/handles/builtins.ts) for examples.
+> 📄 Documentation Coming Soon
+
+Please refer to [builtins.ts](./src/handles/builtins.ts) for examples.
 
 ## Advanced: Context Injection
 
-> Documentation Coming Soon
->
-> Please refer to [context.test.js](./tests/07.context.test.js) for examples.
+> 📄 Documentation Coming Soon
+
+Please refer to [context.test.js](./tests/07.context.test.js) for examples.
