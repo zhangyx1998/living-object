@@ -3,14 +3,15 @@
  * This source code is licensed under the MIT license.
  * You may find the full license in project root directory.
  * ------------------------------------------------------ */
-import { resolve } from 'path';
-import { readFileSync, rmdirSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { defineConfig, type Plugin } from 'rollup';
-import esbuild from 'rollup-plugin-esbuild';
-import { dts as dtsPlugin } from 'rollup-plugin-dts';
 import terser from '@rollup/plugin-terser';
+import { readFileSync, rmdirSync } from 'fs';
+import { resolve } from 'path';
+import { defineConfig, type Plugin } from 'rollup';
+import { dts as dtsPlugin } from 'rollup-plugin-dts';
+import esbuild from 'rollup-plugin-esbuild';
+import { fileURLToPath } from 'url';
 import transformREADME from './scripts/transformREADME';
+import { handleAuthToken } from './scripts/handleAuthToken';
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '..');
 const $ = (...p: string[]) => resolve(ROOT, ...p);
@@ -62,6 +63,7 @@ function packageMeta(isProduction: boolean, exports = {}): Plugin {
                 fileName: 'README.md',
                 source: transformREADME(read('README.md'), pkg),
             });
+            handleAuthToken.call(this);
         },
     };
 }
@@ -92,7 +94,9 @@ export default defineConfig((commandLineArgs) => {
                 format: 'esm',
                 file: $(dst, mjs),
                 sourcemap,
+                exports: 'named',
             },
+            external: ['node:vm'],
             plugins,
         },
         // CJS Build
@@ -102,7 +106,9 @@ export default defineConfig((commandLineArgs) => {
                 format: 'cjs',
                 file: $(dst, cjs),
                 sourcemap,
+                exports: 'named',
             },
+            external: ['node:vm'],
             plugins,
         },
         // d.ts Build

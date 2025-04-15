@@ -1,0 +1,43 @@
+name: Publish Package
+
+on:
+    push:
+        branches:
+            - master
+        tags:
+            - 'v*'
+
+jobs:
+    test:
+        uses: ./.github/workflows/test.yaml
+
+    build:
+        needs: test
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write
+        env:
+            FORCE_COLOR: '1'
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: latest
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build package
+              run: npm run build
+
+            - name: Normalize package.json
+              working-directory: dist
+              run: npm pkg fix
+
+            - name: Publish package
+              working-directory: dist
+              run: npm publish --provenance --access public

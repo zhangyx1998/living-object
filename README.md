@@ -1,5 +1,7 @@
 # Living Object
 
+[![CI Tests](https://github.com/zhangyx1998/living-object/actions/workflows/test.yaml/badge.svg)](https://github.com/zhangyx1998/living-object/actions/workflows/test.yaml) [![npm version](https://img.shields.io/npm/v/living-object.svg?maxAge=3600)](https://npmjs.com/package/living-object)
+
 Living Object serializes JS Objects into executable JS code. It preserves circular references and strict object equality.
 
 Unlike other solutions that embeds custom protocols into JSON files, **_Living Object_ directly generates executable JavaScript code**. Therefore, it's result can be **directly imported as ES Module** or **evaluated in a wrapper function**, achieving **minimal performance overhead** on the consumer side.
@@ -122,3 +124,10 @@ Please refer to [builtins.ts](./src/handles/builtins.ts) for examples.
 > 📄 Documentation Coming Soon
 
 Please refer to [context.test.js](./tests/07.context.test.js) for examples.
+
+## Continuous Integration
+
+_Living Object_ is tested against the following environments before each release:
+
+- **Host OS**: _Ubuntu_@latest, _Windows_@latest
+- **Node.js**: _`@latest`_, `22`, `20`, `18`, `16`
