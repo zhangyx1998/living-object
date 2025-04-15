@@ -70,7 +70,7 @@ export default {
     },
     RegExp: <TypeHandle<RegExp>>{
         match: (obj) => obj instanceof RegExp,
-        serialize: (regex) => `new RegExp(${JSON.stringify(regex.source)})`,
+        serialize: (regex) => regex.toString(),
     },
     Error: <TypeHandle<Error>>{
         match: (obj) => obj instanceof Error,

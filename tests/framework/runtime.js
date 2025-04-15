@@ -103,7 +103,7 @@ export async function equivalence(a, b, checked = new WeakMap(), f = (_) => _) {
     try {
         checked.set(a, b);
     } catch {}
-    [Array, Map, Set, Function, Promise, Date].map((p) =>
+    [Array, Map, Set, Function, Promise, Date, RegExp].map((p) =>
         checkInstance(a, b, p, f),
     );
     if (a instanceof Promise) {
@@ -116,6 +116,13 @@ export async function equivalence(a, b, checked = new WeakMap(), f = (_) => _) {
         await $(a.values(), b.values(), '.values()');
     } else if (a instanceof Set) {
         await $(a.values(), b.values(), '.values()');
+    } else if (a instanceof Date) {
+        await $(a.getTime(), b.getTime(), '.getTime()');
+        await $(a.toISOString(), b.toISOString(), '.toISOString()');
+    } else if (a instanceof RegExp) {
+        await $(a.source, b.source, '.source');
+        await $(a.flags, b.flags, '.flags');
+        await $(a.toString(), b.toString(), '.toString()');
     } else if (type === 'object' || type === 'function') {
         if (type === 'function') {
             await $(a(), b(), '()');
