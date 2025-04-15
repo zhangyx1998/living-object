@@ -73,6 +73,7 @@ console.log(stringify(object));
 **Output** (`type = 'function'`)
 
 ```js
+// Formatted by prettier
 'use strict';
 const A = { loop: 0 };
 A.loop = A;
@@ -96,8 +97,8 @@ return {
         [A, 'circular'],
         ['circular', A],
     ]),
-    time: new Date(1744335826842),
-    regex: new RegExp('^hello-world$'),
+    time: new Date(1744754605416),
+    regex: /^hello-world$/gi,
 };
 ```
 
