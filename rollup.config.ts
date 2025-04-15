@@ -30,6 +30,7 @@ const distKeys = [
     'version',
     'description',
     'exports',
+    'engines',
     'license',
     'author',
     'repository',

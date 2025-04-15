@@ -32,6 +32,9 @@
     ],
     "author": "Yuxuan Zhang",
     "license": "MIT",
+    "engines": {
+        "node": ">=16.0.0"
+    },
     "bugs": {
         "url": "https://github.com/zhangyx1998/living-object/issues"
     },
