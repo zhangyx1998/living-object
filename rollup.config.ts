@@ -80,6 +80,10 @@ export default defineConfig((commandLineArgs) => {
             types: `./${dts}`,
         },
     };
+    const plugins = [esbuild({ target: 'node18' })];
+    if (isProduction) {
+        plugins.push(terser());
+    }
     return [
         // ESM Build
         {
@@ -89,7 +93,7 @@ export default defineConfig((commandLineArgs) => {
                 file: $(dst, mjs),
                 sourcemap,
             },
-            plugins: [esbuild({ target: 'node18' }), terser()],
+            plugins,
         },
         // CJS Build
         {
@@ -99,7 +103,7 @@ export default defineConfig((commandLineArgs) => {
                 file: $(dst, cjs),
                 sourcemap,
             },
-            plugins: [esbuild({ target: 'node18' }), terser()],
+            plugins,
         },
         // d.ts Build
         {
