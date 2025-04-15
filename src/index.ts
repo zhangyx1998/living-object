@@ -66,8 +66,9 @@ export default class LivingObject {
         while (graph.objects.size > 0) {
             // Look for next object with most parents
             const next = lookup(
-                graph.objects
-                    .values()
+                Array.from(graph.objects)
+                    // TODO: Use iterator helpers polyfill, avoid flattening as array
+                    // .values()
                     .filter((e) => e !== root)
                     .map((e) => [e, graph.refs.stat(e)]),
                 ([_a, a], [_b, b]) => b > a,

@@ -205,8 +205,11 @@ export class Locals extends Map<string, { value: any; writable: boolean }> {
             });
         }
     }
-
     values() {
-        return super.values().map((v) => v.value);
+        // TODO: Use polyfilled iterator helpers
+        // return super.values().map((v) => v.value);
+        return Array.from(super.values())
+            .map((v) => v.value)
+            [Symbol.iterator]();
     }
 }

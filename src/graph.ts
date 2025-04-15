@@ -3,6 +3,7 @@
  * This source code is licensed under the MIT license.
  * You may find the full license in project root directory.
  * ------------------------------------------------------ */
+
 import { crash, isImmediateValue } from './util';
 import { type TypeHandles } from './handles';
 
@@ -14,7 +15,13 @@ class CountMap extends Map<any, number> {
         this.set(key, this.get(key) + 1);
     }
     sum() {
-        return this.values().reduce((acc, v) => acc + v, 0);
+        // TODO: Use polyfilled iterator helpers
+        // return this.values().reduce((acc, v) => acc + v, 0);
+        let sum = 0;
+        for (const v of this.values()) {
+            sum += v;
+        }
+        return sum;
     }
 }
 
