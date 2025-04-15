@@ -11,7 +11,7 @@
         "test:isolate": "ISOLATE=1 node tests",
         "test:clean": "rm -r tests/*.test.log",
         "prebuild": "mkdir -p dist && rm -rf dist/*",
-        "build": "run-s build:check build:rollup;",
+        "build": "run-s build:check build:rollup",
         "build:check": "tsc --noEmit",
         "build:rollup": "rollup --config rollup.config.ts --configPlugin esbuild",
         "build:debug": "rollup --config rollup.config.ts --configPlugin esbuild --configDebug",
