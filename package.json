@@ -22,8 +22,13 @@
         "url": "https://github.com/zhangyx1998/living-object/"
     },
     "keywords": [
-        "JS",
-        "serializer"
+        "js",
+        "ts",
+        "javascript",
+        "typescript",
+        "serialize",
+        "serialize-object",
+        "serialize-javascript"
     ],
     "author": "Yuxuan Zhang",
     "license": "MIT",
