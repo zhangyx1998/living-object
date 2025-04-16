@@ -105,7 +105,7 @@ export async function equivalence(a, b, checked = new WeakMap(), f = (_) => _) {
     try {
         checked.set(a, b);
     } catch {}
-    [Array, Map, Set, Function, Promise, Date, RegExp].map((p) =>
+    [Array, Map, Set, Function, Promise, Date, RegExp, ArrayBuffer].map((p) =>
         checkInstance(a, b, p, f),
     );
     if (a instanceof Promise) {
@@ -125,6 +125,24 @@ export async function equivalence(a, b, checked = new WeakMap(), f = (_) => _) {
         await $(a.source, b.source, '.source');
         await $(a.flags, b.flags, '.flags');
         await $(a.toString(), b.toString(), '.toString()');
+    } else if (a instanceof ArrayBuffer) {
+        if (a.byteLength !== b.byteLength) {
+            throw new Mismatch(
+                'ArrayBuffer size mismatch',
+                [a, b, f],
+                [a.byteLength, b.byteLength, (_) => `${f(_)}.byteLength`],
+            );
+        }
+        const viewA = new Uint8Array(a);
+        const viewB = new Uint8Array(b);
+        await $(viewA.length, viewB.length, '.length');
+        for (let i = 0; i < viewA.length; i++) {
+            await $(viewA[i], viewB[i], `[${i}]`);
+        }
+    } else if (a instanceof DataView) {
+        await $(a.buffer, b.buffer, '.buffer');
+        await $(a.byteLength, b.byteLength, '.byteLength');
+        await $(a.byteOffset, b.byteOffset, '.byteOffset');
     } else if (type === 'object' || type === 'function') {
         if (type === 'function') {
             if (a.toString().startsWith('class ')) {

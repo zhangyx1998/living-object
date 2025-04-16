@@ -6,6 +6,7 @@
 
 import { crash, indexable } from './util';
 import { type TypeHandles } from './handles';
+import globals from './globals';
 
 class CountMap extends Map<any, number> {
     get(key: any): number {
@@ -63,6 +64,7 @@ export default class Graph {
      */
     private traverse(target: any) {
         if (!indexable(target)) return;
+        if (globals().has(target)) return;
         if (this.objects.has(target)) return;
         this.objects.add(target);
         // Only traverse children upon first encounter

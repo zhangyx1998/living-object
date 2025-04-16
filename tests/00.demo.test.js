@@ -40,6 +40,10 @@ const object = {
     time: new Date('2025-12-31T12:00:00Z'),
     // RegExp
     regex: /^hello-world$/gi,
+    // Binary data types
+    typedArray: new Uint8Array([1, 2, 3]),
+    arrayBuffer: new Uint16Array([4, 5, 6]).buffer,
+    dataView: new DataView(new Uint32Array([7, 8, 9]).buffer),
 };
 
 await test('Demo: Function Mode', () => object);

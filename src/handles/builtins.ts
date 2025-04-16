@@ -11,7 +11,7 @@ import {
     serializeObjectKey,
 } from '../util';
 import serializeFunction from './function';
-import globals from '../globals';
+import { TypedArrayConstructor, type TypedArray } from './typed-array';
 
 function keys(obj: any): PropertyKey[] {
     return [...Object.keys(obj), ...Object.getOwnPropertySymbols(obj)];
@@ -67,11 +67,6 @@ export default {
             if (typeof value === 'number') return value.toString();
             return JSON.stringify(value) ?? 'undefined';
         },
-    },
-    // Well-known global objects - they should also treated as primitives
-    Global: <TypeHandle<any>>{
-        match: (obj) => globals().has(obj),
-        serialize: (value) => globals().get(value)!,
     },
     Date: <TypeHandle<Date>>{
         match: (obj) => obj instanceof Date,
@@ -184,6 +179,39 @@ export default {
             } else {
                 return denseExpr;
             }
+        },
+    },
+    TypedArray: <TypeHandle<TypedArray>>{
+        match: (obj) => obj instanceof TypedArrayConstructor,
+        serialize(self, { ref, inline }) {
+            const constructor = ref(self.constructor);
+            const data = Array.from(self as Iterable<number | bigint>)
+                .map((v) => inline.force(v))
+                .join(',');
+            return `new ${constructor}([${data}])`;
+        },
+    },
+    ArrayBuffer: <TypeHandle<ArrayBuffer>>{
+        match: (obj) => obj instanceof ArrayBuffer,
+        serialize(self, { ref }) {
+            const U8 = ref(Uint8Array);
+            const view = new DataView(self);
+            const data = new Array(self.byteLength)
+                .fill(0)
+                .map((_, i) => view.getUint8(i).toString())
+                .join(',');
+            return `${U8}.from([${data}]).buffer`;
+        },
+    },
+    DataView: <TypeHandle<DataView>>{
+        match: (obj) => obj instanceof DataView,
+        traverse: (self) => [self.buffer],
+        serialize(self, { ref, inline }) {
+            const DV = ref(DataView);
+            const buffer = inline.force(self.buffer);
+            const byteOffset = JSON.stringify(self.byteOffset);
+            const byteLength = JSON.stringify(self.byteLength);
+            return `new ${DV}(${buffer}, ${byteOffset}, ${byteLength})`;
         },
     },
     Function: <TypeHandle<Function>>{

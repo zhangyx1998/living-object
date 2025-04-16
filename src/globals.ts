@@ -47,4 +47,7 @@ class Globals extends WeakMap<object, string> {
     }
 }
 
+/**
+ * singleton instance providing mapping from global objects to their names.
+ */
 export default lazy(() => new Globals(universal));

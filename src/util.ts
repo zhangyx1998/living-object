@@ -9,9 +9,16 @@ export type PropertyKey = string | number | symbol;
 export const inBrowser = typeof window !== 'undefined';
 
 export function crash(...messages: string[]): never {
-    const message = ['[living-objects]', 'Error:', ...messages].join(' ');
+    const message = ['[living-objects]', ...messages].join(' ');
     const error = new Error(message);
     Error.captureStackTrace(error, crash);
+    throw error;
+}
+
+export function crashAt(scene: Function, ...messages: string[]): never {
+    const message = ['[living-objects]', ...messages].join(' ');
+    const error = new Error(message);
+    Error.captureStackTrace(error, scene);
     throw error;
 }
 
@@ -129,4 +136,32 @@ export class Locals extends Map<string, { value: any; writable: boolean }> {
             .map((v) => v.value)
             [Symbol.iterator]();
     }
+}
+
+export function configure(object: object, prop: string, value: any) {
+    const desc = Object.getOwnPropertyDescriptor(object, prop) ?? {
+        value: undefined,
+        writable: true,
+        configurable: true,
+        enumerable: true,
+    };
+    if (!Reflect.has(desc, 'value')) return false;
+    if (desc.writable) {
+        return Reflect.set(object, prop, value);
+    } else if (desc.configurable) {
+        desc.value = value;
+        return Object.defineProperty(object, prop, desc);
+    } else return false;
+}
+
+/**
+ * Describe the target in human-readable format.
+ */
+export function describe(target: any): string {
+    if (target instanceof Function && target.name) return target.name;
+    else if (target instanceof Object && target[Symbol.toStringTag])
+        return target[Symbol.toStringTag];
+    else if (target instanceof Object && target?.constructor?.name)
+        return target?.constructor?.name;
+    else return typeof target;
 }

@@ -6,15 +6,20 @@
 import { iter, concat } from '../util';
 
 export declare namespace Hooks {
-    type Ref = (target: Object | Function, immediate?: boolean) => string;
-    type Inline = (val: any, immediate?: boolean) => string | undefined;
+    type Ref = (target: Object | Function) => string;
+
+    type Inline<Immediate extends boolean> = (
+        val: any,
+    ) => Immediate extends true ? string : string | undefined;
+
     type Defer = (
         resolve: (hooks: StatementHooks) => string | Iterable<string>,
         placeholder?: string,
     ) => string;
+
     interface StatementHooks {
-        ref: (target: Object | Function) => string;
-        inline: (val: any) => string;
+        ref: Ref;
+        inline: Inline<true>;
     }
 }
 
@@ -22,43 +27,34 @@ export interface SerializeContext {
     /**
      * Reference the name of an object.
      * This will force the target object NOT to be inlined.
-     *
-     * ---
-     *
-     * **[NOTE]**
-     * At serialization time, referenced name may not be instantiated.
-     *
-     * For example, the following code will **NOT** work:
-     * ```js
-     * serialize(obj, { ref }) {
-     *   return `[ ${ref(obj)} ]`;
-     * }
-     * ```
-     *
-     * Above code produces: (assuming `obj` is assigned name "a")
-     * ```js
-     * // ReferenceError: Cannot access 'a' before initialization
-     * const a = [ a ];
-     * ```
-     *
-     * ---
-     *
-     * To ensure the target object can be referenced immediately, set
-     * `immediate` to true.
      */
-    ref: Hooks.Ref;
+    ref: Hooks.Ref & {
+        /**
+         * Allow reference to objects that have not been instantiated yet.
+         */
+        async: Hooks.Ref;
+    };
     /**
      * Get a valid JS expression or name for the object.
      * Returns undefined if the object cannot be inlined.
      */
-    inline: Hooks.Inline;
+    inline: Hooks.Inline<false> & {
+        /*
+         * Allow reference to objects that have not been instantiated yet.
+         */
+        async: Hooks.Inline<false>;
+        /**
+         * Force synchronous inline expression, throws error on failure.
+         */
+        force: Hooks.Inline<true>;
+    };
     /**
-     * Defer apply statements after instantiation of all objects.
-     * It's callback provides a new inline function with access to wider scope.
-     * The inline function always returns a valid JS expression.
+     * Defer statement(s) after all objects have been instantiated.
+     * It's callback provides a new context, i.e. `ref` and `inline` with wider
+     * scope of access.
      *
      * **[NOTE]**
-     * The defer hook is executed immediately upon defer call.
+     * Do not reuse `inline` or `ref` provided by `serialize` in defer callback.
      *
      * @argument {Defer.DeferCallback} resolve -- The callback to resolve the
      * deferred statement.
