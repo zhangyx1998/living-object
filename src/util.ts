@@ -133,38 +133,6 @@ export function isValidVarName(name: PropertyKey): name is string {
     return /^[a-zA-Z_$][0-9a-zA-Z_$]*$/.test(name);
 }
 
-export function isImmediateValue(value: any): boolean {
-    if (typeof value === 'object' && value !== null) return false;
-    if (typeof value === 'function') return false;
-    return true;
-}
-
-function isConciseMethod(f: string, name: string) {
-    if (name.length === 0 || name === 'function') return false;
-    f = f.trimStart();
-    if (!f.startsWith(name)) return false;
-    f = f.slice(name.length).trimStart();
-    return f.startsWith('(');
-}
-
-export function serializeFunction(target: Function) {
-    const raw = target.toString();
-    // Strip async prefix
-    const prefix = raw.match(/^\s*async\s+/)?.[0] ?? '';
-    const stripped = raw.slice(prefix.length);
-    // Special case:
-    // fn() {} (needs fix => function fn() {})
-    // mutations:
-    // fn \s* () \s* {}
-    // Not to be confused with:
-    // () => {}
-    // function () {}
-    // function function() {}
-    if (isConciseMethod(stripped, target.name))
-        return [prefix.trim(), 'function', stripped].join(' ');
-    else return raw;
-}
-
 export function serializeSymbol(target: symbol) {
     const name = Symbol.keyFor(target);
     if (name === undefined) throw new Error('Cannot serialize private Symbol');

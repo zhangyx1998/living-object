@@ -8,9 +8,9 @@ import {
     concat,
     isValidVarName,
     serializeSymbol,
-    serializeFunction,
     serializeObjectKey,
 } from '../util';
+import serializeFunction from './function';
 
 function keys(obj: any): PropertyKey[] {
     return [...Object.keys(obj), ...Object.getOwnPropertySymbols(obj)];
