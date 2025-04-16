@@ -159,7 +159,7 @@ export default {
             const { inline, defer } = ctx;
             const allKeys = new Set(keys(self));
             // Determine if length needs to be explicitly set
-            if (!allKeys.has((self.length - 1).toString()))
+            if (self.length > 0 && !allKeys.has((self.length - 1).toString()))
                 allKeys.add('length');
             // Dense elements in an array that can be directly put into []
             const denseItems: string[] = [];
