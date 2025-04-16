@@ -29,88 +29,111 @@ Unlike other solutions that embeds custom protocols into JSON files, **_Living O
 
 ## Usage
 
-```js
-import { stringify, parse } from 'living-object';
+**👋 Try it out at _[Stackblitz Playground](https://stackblitz.com/edit/living-object?file=demo.js)_ !**
 
+#### 1. Let's construct a really challenging input
+
+```js
 // Create circular reference
 const circular = {};
 circular.loop = circular;
 
+// Create a function with attributes
+function bar() {
+    return 'I have attributes!';
+}
+bar.hello = 'world';
+bar.loop = bar;
+
 const object = {
     // circular reference
     circular,
-    // pure function
+    // pure JS function
     foo() {
         return 'bar';
     },
     // function with attributes
-    bar: Object.assign(
-        function () {
-            return 'Happy coding!';
-        },
-        { hello: 'world' },
-    ),
-    // undefined and null
-    a: [undefined, null],
-    b: undefined,
-    c: null,
+    bar,
+    // Singleton values
+    singletons: [undefined, null, Infinity, NaN],
+    // Builtin Functions
+    Number,
+    String,
+    Boolean,
+    // Well-known function that contains native code
+    arrayPrototypePush: [].push,
     // Set and Map
-    s: new Set(['a', 'b', 'c']),
-    m: new Map([
+    set: new Set(['a', 'b', 'c']),
+    map: new Map([
         ['foo', 'bar'],
         [circular, 'circular'],
         ['circular', circular],
     ]),
     // Date object
-    time: new Date(),
+    time: new Date('2025-12-31T12:00:00Z'),
     // RegExp
     regex: /^hello-world$/gi,
 };
-
-console.log(stringify(object));
 ```
 
-**Output** (`type = 'function'`)
+#### 2. Serialize it with _Living Object_
+
+```js
+import { stringify } from 'living-object';
+
+console.log(stringify(object, { type: 'function' }));
+```
+
+**Output `{ type: 'function' }`**
+
+Generate code with a `return` statement:
 
 ```js
 // Formatted by prettier
 'use strict';
-const A = { loop: 0 };
+const A = { loop: 0 },
+    B = Object.assign(
+        function bar() {
+            return 'I have attributes!';
+        },
+        { hello: 'world', loop: 0 },
+    );
 A.loop = A;
+B.loop = B;
 return {
     circular: A,
     foo: function foo() {
         return 'bar';
     },
-    bar: Object.assign(
-        function () {
-            return 'Happy coding!';
-        },
-        { hello: 'world' },
-    ),
-    a: [undefined, null],
-    b: undefined,
-    c: null,
-    s: new Set(['a', 'b', 'c']),
-    m: new Map([
+    bar: B,
+    singletons: [undefined, null, Infinity, NaN],
+    Number,
+    String,
+    Boolean,
+    arrayPrototypePush: Array.prototype.push,
+    set: new Set(['a', 'b', 'c']),
+    map: new Map([
         ['foo', 'bar'],
         [A, 'circular'],
         ['circular', A],
     ]),
-    time: new Date(1744754605416),
+    time: new Date(1767182400000),
     regex: /^hello-world$/gi,
 };
 ```
 
-**Output** (`type = 'module'`)
+**Output `{ type: 'function' }`**
+
+Generate code with an `export default` statement:
 
 ```diff
   "use strict";
-  const A = { loop: 0 };
+  ...
   A.loop = A;
+  B.loop = B;
 - return {
 + export default {
-    ... // unchanged lines omitted
+    ...
   };
 ```
 
