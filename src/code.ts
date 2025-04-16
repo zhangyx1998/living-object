@@ -4,7 +4,7 @@
  * You may find the full license in project root directory.
  * ------------------------------------------------------ */
 import { FormatOptions } from './shared';
-import { NameGenerator } from './util';
+import { NameGenerator } from './name-gen';
 
 export class CodeBlock extends Array<string> {
     toString(): string {

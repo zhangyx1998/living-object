@@ -4,7 +4,7 @@
  * You may find the full license in project root directory.
  * ------------------------------------------------------ */
 
-import { crash, isImmediateValue } from './util';
+import { crash, indexable } from './util';
 import { type TypeHandles } from './handles';
 
 class CountMap extends Map<any, number> {
@@ -62,7 +62,7 @@ export default class Graph {
      * Traverse object tree and build dependency graph
      */
     private traverse(target: any) {
-        if (isImmediateValue(target)) return;
+        if (!indexable(target)) return;
         if (this.objects.has(target)) return;
         this.objects.add(target);
         // Only traverse children upon first encounter
@@ -71,7 +71,7 @@ export default class Graph {
         if (children) {
             for (const child of children) {
                 // Skip immediate values
-                if (isImmediateValue(child)) continue;
+                if (!indexable(child)) continue;
                 // Record parent / child relationship
                 this.add(target, child);
                 this.traverse(child);
