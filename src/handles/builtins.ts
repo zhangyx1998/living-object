@@ -41,7 +41,8 @@ function serializeObject(
                     return `${s}[${inline(k)}]=${expr}`;
                 }
             });
-        code.push([key, val].join(':'));
+        if (k === key && k === val) code.push(k);
+        else code.push([key, val].join(':'));
     }
     return `{${code.join(',')}}`;
 }
