@@ -1,5 +1,5 @@
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#reserved_words
-export const keywords = new Set([
+export default Object.freeze([
     'break',
     'case',
     'catch',

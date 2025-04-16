@@ -11,6 +11,7 @@ import {
     serializeObjectKey,
 } from '../util';
 import serializeFunction from './function';
+import globals from '../globals';
 
 function keys(obj: any): PropertyKey[] {
     return [...Object.keys(obj), ...Object.getOwnPropertySymbols(obj)];
@@ -62,8 +63,15 @@ export default {
         serialize: (value) => {
             if (typeof value === 'symbol') return serializeSymbol(value);
             if (typeof value === 'bigint') return value.toString() + 'n';
+            // NaN, +Infinity, -Infinity
+            if (typeof value === 'number') return value.toString();
             return JSON.stringify(value) ?? 'undefined';
         },
+    },
+    // Well-known global objects - they should also treated as primitives
+    Global: <TypeHandle<any>>{
+        match: (obj) => globals().has(obj),
+        serialize: (value) => globals().get(value)!,
     },
     Date: <TypeHandle<Date>>{
         match: (obj) => obj instanceof Date,

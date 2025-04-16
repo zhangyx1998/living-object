@@ -4,7 +4,8 @@
  * You may find the full license in project root directory.
  * ------------------------------------------------------ */
 
-import { keywords } from './keywords';
+import globals from '../globals';
+import keywords from './keywords';
 
 function* range(s: number, e: number) {
     for (let i = s; i < e; i++) {
@@ -42,7 +43,11 @@ export class NameGenerator {
     public readonly excludes: Set<string>;
 
     constructor(excludes: Iterable<string> = []) {
-        this.excludes = new Set<string>([...keywords, ...excludes]);
+        this.excludes = new Set<string>([
+            ...keywords,
+            ...globals().keys,
+            ...excludes,
+        ]);
     }
 
     /**
