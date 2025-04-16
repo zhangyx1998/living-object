@@ -5,33 +5,39 @@ import { stringify } from 'living-object';
 const circular = {};
 circular.loop = circular;
 
+// Create a function with attributes
+function bar() {
+    return 'I have attributes!';
+}
+bar.hello = 'world';
+bar.loop = bar;
+
 const object = {
     // circular reference
     circular,
-    // pure function
+    // pure JS function
     foo() {
         return 'bar';
     },
     // function with attributes
-    bar: Object.assign(
-        function () {
-            return 'Happy coding!';
-        },
-        { hello: 'world' },
-    ),
-    // undefined and null
-    a: [undefined, null],
-    b: undefined,
-    c: null,
+    bar,
+    // Singleton values
+    singletons: [undefined, null, Infinity, NaN],
+    // Builtin Functions
+    Number,
+    String,
+    Boolean,
+    // Well-known function that contains native code
+    arrayPrototypePush: [].push,
     // Set and Map
-    s: new Set(['a', 'b', 'c']),
-    m: new Map([
+    set: new Set(['a', 'b', 'c']),
+    map: new Map([
         ['foo', 'bar'],
         [circular, 'circular'],
         ['circular', circular],
     ]),
     // Date object
-    time: new Date(),
+    time: new Date('2025-12-31T12:00:00Z'),
     // RegExp
     regex: /^hello-world$/gi,
 };

@@ -1,12 +1,12 @@
 // All exported properties will be exposed to test scripts
 
-import { stringify, parse } from 'living-object';
 import { prettyPrint } from '@base2/pretty-print-object';
+import c from 'chalk';
+import { parse, stringify } from 'living-object';
 import { createWriteStream } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
-import c from 'chalk';
-import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { format } from 'prettier';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
@@ -72,9 +72,6 @@ function checkInstance(a, b, proto, f) {
 
 export async function equivalence(a, b, checked = new WeakMap(), f = (_) => _) {
     process.stdout.write(['>', f('A'), '<=>', f('B')].join(' ') + '\n');
-    if (checked.has(a) && checked.get(a) === b) {
-        return;
-    }
     function $(a, b, _f = (_) => f(_) + '[?]') {
         if (typeof _f !== 'function') {
             const suffix = _f;
@@ -82,6 +79,11 @@ export async function equivalence(a, b, checked = new WeakMap(), f = (_) => _) {
         }
         return equivalence(a, b, checked, _f);
     }
+
+    // Fast path for identical references or already checked pairs
+    if (a === b) return;
+    if (checked.has(a) && checked.get(a) === b) return;
+
     if (typeof a !== typeof b) {
         throw new Mismatch(
             'Type mismatch',
@@ -95,10 +97,10 @@ export async function equivalence(a, b, checked = new WeakMap(), f = (_) => _) {
         a === null ||
         b === null
     ) {
-        if (a !== b) {
-            throw new Mismatch('Value mismatch', [a, b, f]);
-        }
-        return;
+        // NaN === NaN => false
+        if (type === 'number' && isNaN(a) && isNaN(b)) return;
+        // Strict equality already checked but failed
+        throw new Mismatch('Value mismatch', [a, b, f]);
     }
     try {
         checked.set(a, b);
@@ -223,14 +225,26 @@ export async function session(description, callback, _origin) {
     }
 }
 
-export function assert(cond, message) {
-    if (!cond) {
-        const title = 'Assertion failed';
-        const err = new Error(message ? `${title}: ${message}` : title);
-        Error.captureStackTrace(err, assert);
-        throw err;
+class AssertionError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'AssertionError';
     }
 }
+export const assert = Object.assign(
+    function assert(cond, message = 'Assertion failed') {
+        if (!cond) {
+            const err = new AssertionError(message);
+            Error.captureStackTrace(err, assert);
+            throw err;
+        }
+    },
+    {
+        passthrough: (e) => {
+            if (e instanceof AssertionError) throw e;
+        },
+    },
+);
 
 /**
  * @param {string} description

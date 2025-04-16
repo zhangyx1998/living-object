@@ -13,6 +13,7 @@ await session('private symbol as value', () => {
         stringify(p);
         assert(false, 'should have thrown an error');
     } catch (e) {
+        assert.passthrough(e);
         console.log('Error thrown as expected:', e);
     }
 });
@@ -22,6 +23,7 @@ await session('private symbol as key', () => {
         stringify({ [p]: 'hello' });
         assert(false, 'should have thrown an error');
     } catch (e) {
+        assert.passthrough(e);
         console.log('Error thrown as expected:', e);
     }
 });

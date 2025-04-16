@@ -1,4 +1,4 @@
-import { test } from './framework/runtime.js';
+import { code, session, test, assert } from './framework/runtime.js';
 
 await test('Concise functions', () => ({
     foo() {
@@ -64,4 +64,18 @@ await test('Function with attributes', () => {
     };
     fn.loop = fn;
     return fn;
+});
+
+import { stringify } from 'living-object';
+
+await session('Native Code', () => {
+    try {
+        function foo() {
+            return 'bar';
+        }
+        code('deflated', stringify(foo.bind({})));
+    } catch (e) {
+        assert.passthrough(e);
+        console.log('Error thrown as expected:', e);
+    }
 });
