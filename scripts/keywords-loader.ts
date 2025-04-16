@@ -1,5 +1,12 @@
+/* ---------------------------------------------------------
+ * Copyright (c) 2025-present Yuxuan Zhang, web-dev@z-yx.cc
+ * This source code is licensed under the MIT license.
+ * You may find the full license in project root directory.
+ * ------------------------------------------------------ */
+import { type Plugin } from 'rollup';
+
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#reserved_words
-export default Object.freeze([
+const keywords = [
     'break',
     'case',
     'catch',
@@ -53,4 +60,21 @@ export default Object.freeze([
     // (not a keyword, but cannot be declared as identifier in strict mode)
     'arguments',
     'eval',
-]);
+];
+
+export function keywordsLoader(): Plugin {
+    return {
+        name: 'keywords-loader',
+        resolveId(id) {
+            if (id === '@keywords') return '@keywords';
+        },
+        load(id) {
+            if (id === '@keywords') {
+                const str = JSON.stringify(keywords.join(','));
+                return `
+                export const keywords = Object.freeze(${str}.split(','));
+                `;
+            }
+        },
+    };
+}

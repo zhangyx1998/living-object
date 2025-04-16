@@ -5,6 +5,7 @@
  * ------------------------------------------------------ */
 
 import { indexable, lazy } from './util';
+import { nodejs, universal } from '@globals';
 
 function* entries(context: object) {
     for (const k of Reflect.ownKeys(context)) {
@@ -20,6 +21,7 @@ function* entries(context: object) {
 class Globals extends WeakMap<object, string> {
     readonly keys = new Set<string>('globalThis');
     constructor(defaults: Record<string, any>) {
+        // No deep traversal on global since it might have been polluted.
         super(entries({ globalThis }));
         this.register(defaults);
     }
@@ -31,7 +33,18 @@ class Globals extends WeakMap<object, string> {
             this.set(v, name);
             this.register(v, name);
         }
+        return this;
+    }
+    includeNodeJS() {
+        if (!globalThis.process) {
+            const err = new Error(
+                'Cannot reference Node.js API in this context.',
+            );
+            Error.captureStackTrace(err, this.includeNodeJS);
+            throw err;
+        }
+        this.register(nodejs);
     }
 }
 
-export default lazy(() => new Globals(globalThis));
+export default lazy(() => new Globals(universal));

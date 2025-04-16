@@ -5,7 +5,7 @@
  * ------------------------------------------------------ */
 
 import globals from '../globals';
-import keywords from './keywords';
+import { keywords } from '@keywords';
 
 function* range(s: number, e: number) {
     for (let i = s; i < e; i++) {

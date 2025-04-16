@@ -127,7 +127,11 @@ export async function equivalence(a, b, checked = new WeakMap(), f = (_) => _) {
         await $(a.toString(), b.toString(), '.toString()');
     } else if (type === 'object' || type === 'function') {
         if (type === 'function') {
-            await $(a(), b(), '()');
+            if (a.toString().startsWith('class ')) {
+                await $(a.prototype, b.prototype, '.prototype');
+            } else if (a.length === 0) {
+                await $(a(), b(), '()');
+            }
             await $(a.name, b.name, '.name');
             await $(a.length, b.length, '.length');
         }

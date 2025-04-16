@@ -14,6 +14,8 @@ import Code from './code';
 import { crash, lookup, inBrowser, isValidVarName, Locals } from './util';
 import closure from './closure';
 
+export { default as globals } from './globals';
+
 export default class LivingObject {
     private handles: TypeHandles = builtinTypeHandles;
 

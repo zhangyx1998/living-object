@@ -12,6 +12,8 @@ import esbuild from 'rollup-plugin-esbuild';
 import { fileURLToPath } from 'url';
 import transformREADME from './scripts/transformREADME';
 import { handleAuthToken } from './scripts/handleAuthToken';
+import { globalsLoader } from './scripts/globals-loader';
+import { keywordsLoader } from './scripts/keywords-loader';
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '..');
 const $ = (...p: string[]) => resolve(ROOT, ...p);
@@ -83,7 +85,11 @@ export default defineConfig((commandLineArgs) => {
             types: `./${dts}`,
         },
     };
-    const plugins = [esbuild({ target: 'node18' })];
+    const plugins = [
+        globalsLoader(),
+        keywordsLoader(),
+        esbuild({ target: 'node18' }),
+    ];
     if (isProduction) {
         plugins.push(terser());
     }
