@@ -1,6 +1,6 @@
 {
     "name": "living-object",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "description": "Compile JS objects into revivable JS code strings",
     "type": "module",
     "private": true,
